@@ -1,4 +1,5 @@
-* 建议因管理员方式运行命令提示符
+----------------------------- mysql -----------------------------
+* 建议因管理员方式运行命令提示符,否则会提示"发生系统错误 5","拒绝访问"
 
 * 下载 mysql 至本地
    Windows 操作系统中有两种安装 mysql 的方式:
@@ -15,11 +16,13 @@
             max_connections=200
             character-set-server = utf8mb4
             default-storage-engine=INNODB
+            secure_file_priv=D:\exe\mysql-8.0.20-winx64\output
           其中 basedir 根据实际 mysql 安装位置进行更改
-        c.重新生成 data 文件
+          其中 secure_file_priv 为导出目录
+        b.重新生成 data 文件
           执行 mysqld --initialize --console 命令(非首次使用在执行前需确保 data 文件是空的)
           在输出的信息中包含 root 用户的初始密码
-        d.启动服务
+        c.启动服务
           服务窗口启动:计算机管理->服务-> mysql ->启动
            cmd 启动:进入 mysql 的 bin 目录下执行 net start mysql
 
@@ -68,6 +71,12 @@ A:进入 https://dev.mysql.com/downloads/connector/j/
 Q: eclipse 的 Java 项目如何连接 mysql ?
 A: Java 连接 mysql 需要驱动包,即 jar 包
   右键你的项目-> Build Path ->Configure Build Path ->Libraries -> Add External JARs -> Apply 即可
+  ( 代码详见 JavaMySQL.java )
+
+Q: eclipse 的 JavaWeb 项目如何连接 mysql ?
+A: 导入 jar 包(同上) 
+   代码与 Java 项目基本相同,但不需要注册 JDBC 驱动!
+   把 jar 包拷贝到 Tomcat 的 lib 目录下即可
 
 Q:导出数据时报错:
    The MySQL server is running with the --secure-file-priv option so it cannot execute this statement
@@ -283,6 +292,9 @@ create table test1(
  
  drop 删除表
 drop table test; 
+
+ truncate 关键字
+truncate table test; 
 
  insert 插入
 insert into test(Name,age) values ("Tom",12);
