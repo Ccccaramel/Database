@@ -1,0 +1,51 @@
+1.持久化
+  持久( Persistense ),即把数据(如内存中的对象)保存到可永久保存的存储设备中(如磁盘)
+  持久化的主要应用是将内存中的数据存储在关系型的数据库中,当然也可以存储在磁盘文件中或 XML 数据文件中等等
+
+2.持久层
+  持久层( Persistense Layer ),即专注于实现数据持久化应用领域的某个特定系统的一个逻辑层面,将数据使用者和数据实体相关联
+
+3. ORM
+  即 Object-Relational Mapping,它的作用是在关系型数据库和对象之间做一个映射
+  这样,我们在具体的操作数据库的时候,就不需要再去和复杂的 SQL 语句打交道,只要像平时操作对象一样操作它即可
+
+Q:为什么要做持久化和 ORM 设计?
+A:在目前的企业应用系统设计中, MVC 为主要的系统架构模式
+   MVC 中的 Model 包含了复杂的业务逻辑和数据逻辑,以及数据存取机制(如 JDBC 的连接, SQL 生成, Statement 创建,ResultSet 结果集的读取等)等
+  将这些复杂的业务逻辑和数据逻辑分离,将系统的紧耦合关系转化为松耦合关系(即解耦合),降低系统耦合
+   MVC 模式实现了架构上将表现层和数据处理层分离的解耦合,而持久化的设计则实现了数据处理层内部的业务逻辑和数据逻辑分离的解耦合
+  通常的系统设计,使用 JDBC 操作数据库,业务处理逻辑和数据存取逻辑是混杂在一起的
+    <1>.建立数据库连接,获得 Connection 对象
+    <2>.根据用户的输入组装查询 SQL 语句
+    <3>.根据 SQL 语句建立 Statement 对象或者 PreparedStatement 对象
+    <4>.用 Connection 对象执行 SQL 语句,获得结果集 ResultSet 对象
+    <5>.逐条读取结果集 ResultSet 对象中的数据
+    <6>.根据读取到的数据按特定的业务逻辑进行计算
+    <7>.根据计算得到的结果再组装更新 SQL 语句
+    <8>.再使用 Connection 对象执行更新 SQL 语句以更新数据库中的数据
+    <9>.依次关闭各个 Statement 对象和 Connection 对象
+  由上可看出代码逻辑非常复杂,这还不包括某条语句执行失败的处理逻辑
+  其中业务逻辑和数据逻辑混杂在一起,而一个完整的系统要包含成千上万这样重复且混杂的处理过程
+  若要对其中某些业务逻辑或一些相关联的业务流程做修改,那么工作量不可想象
+  另一方面,假如要更换数据库产品或者运行环境也非常艰巨,用户的运行环境和要求千差万别,我们不可能为每一个用户每一种运行环境设计一套一样的系统
+  所以就要将一样的处理代码即业务逻辑和可能不一样的处理即数据存取逻辑分离开来
+  另一方面,关系型数据库中的数据基本都是以一行行的数据进行存取的,而程序运行却是一个个对象进行处理
+  而目前大部分数据库驱动技术(如 ADO.NET JDBC ODBC 等等)均是以行集的结果集一条条进行处理的
+  为了解决这一难题,就出现了 ORM 这一个对象和数据之间映射技术
+  举例一个离子,比如要完成一个购物打折促销的程序,用 ORM 思想将如下实现
+    public Double calcAmount(String customerid, double amount) 
+    {
+        // 根据客户ID获得客户记录
+        Customer customer = CustomerManager.getCustomer(custmerid); 
+        // 根据客户等级获得打折规则
+        Promotion promotion = PromotionManager.getPromotion(customer.getLevel()); 
+        // 累积客户总消费额，并保存累计结果
+        customer.setSumAmount(customer.getSumAmount().add(amount); 
+        CustomerManager.save(customer); 
+        // 返回打折后的金额(multiply,乘)
+        return amount.multiply(protomtion.getRatio());
+    }
+  与数据存储逻辑完全分离,设计业务逻辑代码的时候完全不需要考虑数据库 JDBC 操作,将其交给 CustomerManager 和 PromotionManager 两个类去完成,这就是简单的 ORM 设计
+
+
+  
