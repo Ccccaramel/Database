@@ -1,0 +1,76 @@
+Q:什么是 ORM ?
+A:使用传统的 JDBC 开发应用系统时,如果是小型应用系统,并不觉得有什么麻烦
+  但对于大型应用系统的开发,使用 JDBC 就会显得力不从心
+  例如对几十上百张包含几十个字段的表进行插入操作时,编写的 SQL 语句不但很长,而且繁琐易错
+  在读写数据时需要写多条 getXxx 语句从结果集中取出各字段的信息,导致工作量非常大
+  为提高数据访问层的编程效率, Gavin King 开发出了 Hibernate 框架
+  所谓的 ORM 就是利用描述对象和数据库之间映射的元数据自动把 Java 应用程序中的对象持久化至关系型数据库的表中
+  通过操作 Java 对象就可以完成数据库表的操作
+  可以把 ORM 理解为关系型数据和对象的一个纽带,开发人员只需关注纽带一端映射的对象即可
+
+关系的映射
+  1.多对一(常用)
+    <many-to-one name="[本表对应的类中的与外键对应的属性名]" class="[外键关联的类的包名].[外键关联的类名]" >
+      <column unique="[标识唯一性 true/false ]" name="[外键列名]"/>
+    </many-to-one>
+    <many-to-one name="[本表对应的类中的与外键对应的属性名]" column="[外键列名]"/>
+  2.一对多
+    场景:一个部门对应多个员工
+    eg:
+      dept.hbm.xml
+      <class name="com.po.Dept" table="t_dept">
+        <id name="deptId" type="java.lang.String">
+          <column name="DEPTID" />
+          <generator class="uuid" />
+        </id>
+        <property name="deptName" type="java.lang.String">
+          <column name="DEPTNAME" />
+        </property>
+        <set name="emps" table="t_emp" inverse="true" lazy="true">  // set 标签中添加一对多的关系, name 对应 dept 类中关联的属性名, lazy 表示延迟加载
+          <key column="DEPTID"></key>  // column 为本表的相应字段名
+          <one-to-many class="com.po.Emp"/>  // class 对应关联集合中元素的类型
+        </set> 
+      </class>
+      emp.hbm.xml
+      <class name="com.po.Emp" table="t_emp">
+        <id name="empId" type="java.lang.String">
+          <column name="EMPID"/>
+          <generator class="uuid"/>
+        </id>
+        <property name="empName" type="java.lang.String">
+          <column name="EMPNAME"/>
+        </property>
+        <many-to-one name="dept" class="com.po.Dept">
+          <column name="DEPTID"/>
+        </many-to-one>
+      </class>
+  3.多对多
+    场景:多个老师对应多个学生
+    Student.hbm.xml
+    <class name="com.po.Student" table="t_student">
+      <id name="stuId" type="java.lang.Integer">
+        <column name="STUID" />
+        <generator class="native" />
+      </id>
+      <property name="stuName" type="java.lang.String">
+        <column name="STUNAME">
+      </property>
+      <set name="teas" table="t_stu_tea" fetch="join">
+        <key column="stu_id"></id>
+        <many-to-many column="tea_id" class="com.po.Teacher"></many-to-many>
+      </set>
+    </class>
+    Teacher.hbm.xml
+    <class name="com.po.Teacher" table="t_teacher">
+      <id name="teaId" type="java.lang.Integer">
+        <column name="TEAID" />
+        <generator class="native" />
+      </id>
+      <property name="teaName" type="java.lang.String">
+        <column name="TEANAME" />
+      </property>
+      <set name="stus" table="t_stu_tea" inverse="true">
+        <key column="tea_id"></key>
+        <many-to-many column="stu_id" class="com.po.Student"></many-to-many>
+      </set>
+    <class>

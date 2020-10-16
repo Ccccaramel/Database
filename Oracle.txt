@@ -7,3 +7,27 @@
     可靠性好
     适应高吞吐量
 
+Q:执行错误语句,如何回退恢复表数据?
+A:在 plsql 中通过 ctrl+e 先查看你执行历史
+  允许行移动
+    alter table ut enable row movement;
+  误操作之前的时间(查询指定时刻的数据)
+    select * from ut as of timestamp to_timestamp('2018-03-14 09:30:00','yyyy-mm-dd hh24:mi:ss');
+  闪回恢复数据
+    flashback table ut to timestamp to_timestamp('2018-03-14 09:30:00','yyyy-mm-dd hh24:mi:ss');
+  不知道表名?查看删除的表(根据时间)
+    select * from user_recyclebin where DROPTIME >'2018-03-14 10:00:00';
+
+ flashback table 用法介绍
+  在人为操作或应用程序错误时,使用 flashback table 语句恢复表到一个早期状态
+  表可以闪回到过去的时间点,依赖于系统中撤销数据的数据量
+  此外, Oracle 数据库不能恢复到通过任何 DDL 操作改变了表结构的早期状态
+   Oracle 强烈建议数据库运行在自动撤销模式下,通过设置 UNDO_MANAGEMENT 初始参数值为 AUTO
+  默认是自动模式,另外设置 UNDO_MANAGEMENT 初始化参数的间隔足够大,包括你预计需要的最早数据
+  你不能 flashback table 语句,但是你可以执行另一个 flashback table 语句,指定一个早于当前时间的时间点
+  要闪回一个表到早期的 SCN 或时间戳,你必须有表的 flashback 对象权限或 flashback any table 系统权限
+  闪回列表中的所有表必须启用行移动,除非你是正在闪回表到 before drop ,这种操作称为闪回删除操作,它使用的是回收站中的删除数据,而不撤销数据
+  要闪回表到一个还原点,你必须有 select any dictionary 或 flashback any table 系统权限或 SELECT_CATALOG_ROLE 角色
+  -> flashback -> table ---|-------------------|---> table ---|---> to ---|---> before -> drop ---|-------------------------------|---> ;
+                           |---> schema -> . ->|              |           |                       |---> rename -> to -> table --->| 
+                           |<-------------- , <---------------|           |
