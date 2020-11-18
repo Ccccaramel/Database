@@ -386,7 +386,7 @@ select Name from table_name where Name regexp 'ar';
 > MYSQL
    alter table table_name modify old_column_name new_column_name new_column_type;
 > ORACLE
-   alter table table_name column old_column_name to new_column_name;
+   alter table table_name rename column old_column_name to new_column_name;
    alter table table_name modify (column_name column_type);
 --列类型更改
 > MYSQL
