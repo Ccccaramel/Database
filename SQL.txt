@@ -1,8 +1,8 @@
 **********定义与理论**********
 SQL 语言分为五大类
-  DDL(数据定义语言) - Create Alter Drop 这些语句自动提交,无需用 Commit 提交
-  DQL(数据查询语言) - Select 查询语句不存在提交问题
-  DML(数据操纵语言) - Insert Update Delete 这些语句需要 Commit 才能提交
+  DDL(数据定义语言) - CREATE Alter DROP 这些语句自动提交,无需用 Commit 提交
+  DQL(数据查询语言) - SELECT 查询语句不存在提交问题
+  DML(数据操纵语言) - INSERT Update Delete 这些语句需要 Commit 才能提交
   DTL(事务控制语言) - Commit Rollback 事务提交与回滚语句
   DCL(数据控制语言) - Grant Revoke 授予权限与回收权限语句
   执行完 DML 语句,若没有 Commit 再执行 DDL 语句,也会自动 Commit 未被 Commit 的数据
@@ -10,12 +10,12 @@ SQL 语言分为五大类
 
 **********SQL**********
 Q:如何将一个查询结果集作为另一个查询的条件
-A:table2 的 name 作为 table1的条件
-    select * from table1 where name in (select name from table2)
+A: B_table_name 的 name 作为 A_table_name 的条件
+    SELECT * from A_table_name a where a.name in (SELECT b.name from B_table_name b)
   如果有多条语句，可以使用字段相加再等于 
-    select * from table1 where fld1+fld2 in (select fld1+fld2 from table2)
+    SELECT * from A_table_name a where a.fld1+a.fld2 in (SELECT b.fld1+b.fld2 from B_table_name b)
   使用INNER JOIN 进行查询
-    select a.* from table1 a inner join (select name from table2 group by name) b on a.name=b.name
+    SELECT a.* from A_table_name a inner join (SELECT b.name from B_table_name b group by b.name) c on a.name=c.name
 
 
 索引
@@ -27,25 +27,26 @@ A:table2 的 name 作为 table1的条件
   普通索引:
     最基本的索引,无任何限制
     创建索引:
-       create index indexName on mytable(username(length));
+       CREATE index indexName on mytable(username(length));
     添加索引:
-       alter table tableName add index indexName(columnName);
+       alter table table_name add index indexName(columnName);
     创建表时指定:
-       create table mytable(
+       CREATE table mytable(
          ID int not null,
          username varchar(16) not null,
          index [indexName] (username(length))
        );
     删除索引:
-       drop index [indexName] on mytable;
+       DROP index [indexName] on mytable;
   唯一索引:
     索引列的值必须唯一,但允许有空值,若为组合索引,则列值的索引必须唯一
     创建索引:
-       create unique index indexName on mytable(username(length))
+       CREATE unique index indexName on mytable(username(length))
+       alter table table_name add constraint unique_p2sex unique(psex);
     修改索引:
        alter table mytable add unique [indexName] (username(length))
     创建时指定:
-       create table mytable(
+       CREATE table mytable(
          ID int not null,
          username varchar(16) not null,
          unique [indexName] (username(length))
@@ -63,54 +64,54 @@ A:table2 的 name 作为 table1的条件
       添加索引:
          alter table mytable add index(c);
       删除索引:
-         alter table mytable drop index c;
-         alter table tableName drop constraint indexName;  -- Oracle
+         alter table mytable DROP index c;
+         alter table tableName DROP constraint indexName;  -- Oracle
     使用 alter 命令添加和删除主键
       添加主键索引:
          alter table table_name modify id int not null;
          alter table table_name add primary key (id);
       删除主键索引:
-         alter table table_name drop primary key;
+         alter table table_name DROP primary key;
     显示索引信息:
        show index from table_name;
 
 临时表
   临时表只在连接时可见,关闭连接时自动删除表并释放所有空间
   创建临时表:
-     create temporary table t(...);
+     CREATE temporary table t(...);
   删除临时表:
-     drop table t;
+     DROP table t;
   other:
-     create temporary t as( select *from table_name );
+     CREATE temporary t as( SELECT * from table_name );
 
 复制表
-  完全复制数据表,包括表的结构,索引,默认值等,仅仅使用 create table ... select 命令是无法实现的
+  完全复制数据表,包括表的结构,索引,默认值等,仅仅使用 CREATE table ... SELECT 命令是无法实现的
   复制步骤:
-    1.使用 show create tableName; 命令获取创建数据表语句,该语句包含了原数据表的结构,索引等
+    1.使用 show CREATE tableName; 命令获取创建数据表语句,该语句包含了原数据表的结构,索引等
     2.复制显示的 sql 语句,修改数据表名,并执行 sql 语句,通过以上命令将完全的复制数据表结构
-    3.使用 insert into ... select 语句复制表的内容
-       insert into clone( table_name_id, table_name_title ) select table_name_id,table_name_title from table_name;
+    3.使用 INSERT into ... SELECT 语句复制表的内容
+       INSERT into clone( table_name_id, table_name_title ) SELECT table_name_id,table_name_title from table_name;
   另一种复制方法:
-    1. create table clone like table_name;
-    2. insert into clone select * from table_name;
+    1. CREATE table clone like table_name;
+    2. INSERT into clone SELECT * from table_name;
 
 获取服务器元数据
-   select version()       服务器版本信息
-   select database()      当前数据库名(或者返回空)
-   select user()          当前用户名
-   select status          服务器状态
+   SELECT version()       服务器版本信息
+   SELECT database()      当前数据库名(或者返回空)
+   SELECT user()          当前用户名
+   SELECT status          服务器状态
    show variables         服务器配置变量
 
 统计重复数据
-   select count(*) as repetitions,Course  from table_name1 group by Course having repetitions>1; 
+SELECT count(*) as repetitions,Course  from table_name1 group by Course having repetitions>1; 
 
-过滤重复数据
-   select distinct Course from table_name1;
+过滤重复数据 > Oracle
+SELECT distinct column_name from table_name;
 
 删除重复数据
   方法一:
-   create table tmp select col1,col2,col3 from table_name group by (col1,col2,col3);
-   drop table table_name;
+   CREATE table tmp SELECT col1,col2,col3 from table_name group by (col1,col2,col3);
+   DROP table table_name;
    alter table tmp rename to table_name;
   方法二:
      alter ignore table table_name add primary key (col1,col2);
@@ -133,11 +134,11 @@ A:table2 的 name 作为 table1的条件
 
 导出数据
   普通导出:
-     select * from table_name into outfile 'D:\\exe\\mysql-8.0.20-winx64\\output\\table_name.txt';
+     SELECT * from table_name into outfile 'D:\\exe\\mysql-8.0.20-winx64\\output\\table_name.txt';
   导出 CSV 格式:
-     select * from table_name into outfile '/tmp/table_name.txt' fields terminated by ',' enclosed by '"' lines terminated by '\r\n';
+     SELECT * from table_name into outfile '/tmp/table_name.txt' fields terminated by ',' enclosed by '"' lines terminated by '\r\n';
   自定义导出(各值用 , 隔开):
-     select * into outfile '/tmp/table_name.txt' fields terminated by ',' optionally enclosed by '"' lines terminated by '\n' from table_name;
+     SELECT * into outfile '/tmp/table_name.txt' fields terminated by ',' optionally enclosed by '"' lines terminated by '\n' from table_name;
 
 导出数据库
   导出 sql 格式的数据:
@@ -150,7 +151,7 @@ A:table2 的 name 作为 table1的条件
      mysql -u root -p root < [要导入的数据库数据的地址];
    source 导入:
     登录 mysql
-     create database [数据库名];  # 创建数据库
+     CREATE database [数据库名];  # 创建数据库
      use [数据库名];
      set names utf8;  # 设置编码
      source [数据库数据地址];  # 导入备份数据库
@@ -164,8 +165,8 @@ A:table2 的 name 作为 table1的条件
   (略)
 
 
- create 创建表
-create table table_name(
+ CREATE 创建表
+CREATE table table_name(
   IDCard int unsigned auto_increment,
   Name varchar(20) not null,
   age int,
@@ -173,17 +174,17 @@ create table table_name(
   primary key (IDCard)
 )engine=INNODB default charset=utf8;
 
-create table table_name1(
+CREATE table table_name1(
   IDCard int unsigned auto_increment,
   Course varchar(20),
   grade int,
   primary key (IDCard)
 )engine=INNODB default charset=utf8;
  
- drop 删除表
-drop table table_name; 
+ DROP 删除表
+DROP table table_name; 
 
- insert 插入
+ INSERT 插入
 insert into table_name(Name,age) values ("Tom",12);
 insert into table_name(Name,age) values ("Marry",22);
 insert into table_name(Name,age) values ("Jim",15);
@@ -238,10 +239,10 @@ insert ignore into table_name1(IDCard,Course,grade) values (9,"C",84);
 replace into table_nametb(id,name,age)values(1,"aa",12);
 
 delete 删除数据
-delete from table_name where IDCard=4;
+delete FROM table_name where IDCard=4;
 
  binary 关键字
-select * from table_name where binary name='tom';  # 区分大小写
+SELECT * FROM table_name where binary name='tom';  # 区分大小写
 
  update 更新
 update table_name set age=100 where IDCard=2;
@@ -254,29 +255,29 @@ alter table tableName drop column columnName
 update table_name set age=replace(age,100,23) where IDCard>=1;
 
  union 操作符
-# 将两个以上的 select 语句结果组合到一个结果结合中
+# 将两个以上的 SELECT 语句结果拼接成一个结果
 # distinct 为可选参数,删除结果中重复的数据,若不加参数默认情况下同为此效果,可使用 all 参数显示全部数据
-select Name from table_name where Name like "%m" union distinct select Name from table_name where age>15;
+SELECT Name FROM table_name where Name like "%m" union distinct SELECT Name FROM table_name where age>15;
 
  group by 分组
-select age,count(*) from table_name group by age;  # 各个年龄的人数
-select coalesce(name,"总数"),sum(age) as count from table_name group by name with rollup;  # 年龄和
+SELECT age,count(*) FROM table_name group by age;  # 各个年龄的人数
+SELECT coalesce(name,"总数"),sum(age) as count FROM table_name group by name with rollup;  # 年龄和
 
 * join 笛卡尔积
   连接两张表,大致可分为内连接,外连接,右连接,左连接,自然连接
-    select * from table1 a left join table2 b on a.key=b.key;    -- 左连接
-    select * from table1 a inner join table2 b on a.key=b.key;   -- 内连接,交集
-    select * from table1 a right join table2 b on a.key=b.key;   -- 右连接
-    select * from table1 a left join table2 b on a.key=b.key where b.key is NULL;    -- 左连接-交集
-    select * from table1 a right join table2 b on a.key=b.key where a.key is NULL;   -- 右连接-交集
-    select * from table1 a full outer join table2 b on a.key=b.key;  -- 外连接,并集
-    select * from table1 a full outer join table2 b on a.key=b.key where a.key is NULL or b.key is NULL;  -- 并集-交集
+    SELECT * FROM table1 a left join table2 b on a.key=b.key;    -- 左连接
+    SELECT * FROM table1 a inner join table2 b on a.key=b.key;   -- 内连接,交集
+    SELECT * FROM table1 a right join table2 b on a.key=b.key;   -- 右连接
+    SELECT * FROM table1 a left join table2 b on a.key=b.key where b.key is NULL;    -- 左连接-交集
+    SELECT * FROM table1 a right join table2 b on a.key=b.key where a.key is NULL;   -- 右连接-交集
+    SELECT * FROM table1 a full outer join table2 b on a.key=b.key;  -- 外连接,并集
+    SELECT * FROM table1 a full outer join table2 b on a.key=b.key where a.key is NULL or b.key is NULL;  -- 并集-交集
   内连接
     四种写法: inner join , where(等值连接) , straight_join , join(省略 inner )
-    select * from table1 a inner join table2 b on a.id=b.id;
-    select * from table1 a,table2 b where a.id=b.id;
-    select * from table1 a straight_join table2 b on a.id=b.id;  --冷门很少用
-    select * from table1 a join table2 b on a.id=b.id;
+    SELECT * FROM table1 a inner join table2 b on a.id=b.id;
+    SELECT * FROM table1 a,table2 b where a.id=b.id;
+    SELECT * FROM table1 a straight_join table2 b on a.id=b.id;  --冷门很少用
+    SELECT * FROM table1 a join table2 b on a.id=b.id;
     Q:内连接的四种写法中那种最优呢?
   自然连接
      nature join
@@ -300,8 +301,8 @@ using 子句
     首先驱动表找到第一条记录,然后从头扫描被驱动表,逐一查找与驱动表第一条记录匹配的记录,然后连接起来形成结果表中的一条记录
     被驱动表查找完后再从驱动表中取出第二条记录,然后从头扫描被驱动表,逐一查找与驱动表第二条记录匹配的记录,连接起来形成结果表的第二条记录
     重复上述操作,直到驱动表的全部记录都处理完毕为止,这就是嵌套循环连接算法的基本思想,伪代码如下:
-      foreach row1 from t1
-          foreach row2 from t2
+      foreach row1 FROM t1
+          foreach row2 FROM t2
               if row2 match row1 //row2与row1匹配，满足连接条件
                   join row1 and row2 into result //连接row1和row2加入结果集
    Block Nested Loop Join(BNLJ) 算法
@@ -341,20 +342,21 @@ using 子句
     想要从快速匹配的角度优化 join ,首先就是找出谁是驱动表,谁是被驱动表,然后在被驱动表上建立索引即可
 
  order by 排序
-select * from table_name order by age ASC;  # 升序
-select * from table_name order by age DESC;  # 降序
+> MYSQL,ORACLE
+select * FROM table_name order by age ASC;  # 升序
+select * FROM table_name order by age DESC;  # 降序
 
  where 条件
-select * from table_name where age>=16;
+SELECT * FROM table_name where age>=16;
 
  like 模糊匹配
-select * from table_name where Name like '%m';  # 以 m 结尾
-select * from table_name where Name like 'J%';  # 以 J 开头
-select * from table_name where Name like '_i_';  # 三位且中间为 i 
+SELECT * FROM table_name where Name like '%m';  # 以 m 结尾
+SELECT * FROM table_name where Name like 'J%';  # 以 J 开头
+SELECT * FROM table_name where Name like '_i_';  # 三位且中间为 i 
 (更多见正则表达式)
 
  NULL 处理
-select *,age+ifnull(SubmissionDate,100) from table_name;  // 若值为 NULL 则用指定值代替
+SELECT *,age+ifnull(SubmissionDate,100) FROM table_name;  // 若值为 NULL 则用指定值代替
 
 正则表达式
  mysql 既可以通过 like...% 来进行模糊匹配,同样也支持正则表达式匹配
@@ -371,71 +373,71 @@ $          匹配输入字符串的结束位置
 {n}         n 为非负整数,匹配 n 次
 {n,m}       m 和 n 均为非负整数,其中 n<=m ,最少匹配 n 次且最多匹配 m 次
 eg:
-select Name from table_name where Name regexp '^J';
-select Name from table_name where Name regexp 'k$';
-select Name from table_name where Name regexp 'ar';
+SELECT Name FROM table_name where Name regexp '^J';
+SELECT Name FROM table_name where Name regexp 'k$';
+SELECT Name FROM table_name where Name regexp 'ar';
 
- alter 命令
+ ALTER 命令
 --删除列
 > MYSQL,ORACLE
-   alter table table_name drop column column_name;
+   ALTER TABLE table_name DROP column column_name;
 --增加列
 > MYSQL,ORACLE
-   alter table table_name add column_name column_type [default column_value [not null]];
+   ALTER TABLE table_name add column_name column_type [default column_value [not null]];
 --更改列名,也可使用 change
 > MYSQL
-   alter table table_name modify old_column_name new_column_name new_column_type;
+   ALTER TABLE table_name modify old_column_name new_column_name new_column_type;
 > ORACLE
-   alter table table_name rename column old_column_name to new_column_name;
-   alter table table_name modify (column_name column_type);
+   ALTER TABLE table_name rename column old_column_name TO new_column_name;
+   ALTER TABLE table_name modify (column_name column_type);
 --列类型更改
 > MYSQL
-   alter table table_name modify column_name new_column_type;
+   ALTER TABLE table_name modify column_name new_column_type;
 > ORACLE
-   alter table table_name modify (column_name column_type);
+   ALTER TABLE table_name modify (column_name column_type);
 --更改列类型以及默认值
 > MYSQL
-   alter table table_name change column_name column_type not null default column_value;
+   ALTER TABLE table_name change column_name column_type NOT NULL default column_value;
 --更改默认值
 > MYSQL
-   alter table table_name alter column_name set default column_value;
+   ALTER TABLE table_name ALTER column_name set default column_value;
 --删除默认值
 > MYSQL
-   alter table table_name alter column_name drop default;
+   ALTER TABLE table_name ALTER column_name DROP default;
 --更改表类型
 > MYSQL
-   eg:alter table table_name engine=myisam;  # 将 table_name 表的类型更改为 myisam
+   eg:ALTER TABLE table_name engine=myisam;  # 将 table_name 表的类型更改为 myisam
 --修改表名
 > MYSQL
-   alter table table_name rename to new_table_name;
+   ALTER TABLE table_name rename TO new_table_name;
 --添加外键
 > ORACLE
-  alter table A_table_name add constraint fk_name foreign key(A_column_name) references B_table_name(B_column_name);
+  ALTER TABLE A_table_name add constraint fk_name FOREIGN KEY(A_column_name) references B_table_name(B_column_name);
 --删除外键
 > MYSQL
-   alter table table_name drop foreign key column_name;
+   ALTER TABLE table_name DROP FOREIGN KEY column_name;
 > ORACLE
-   alter table table_name drop constraint fk_name;
+   ALTER TABLE table_name DROP constraint fk_name;
 
  auto_increment 自增序列
-create table table_name(
-  id int unsigned not null auto_increment;
+CREATE TABLE table_name(
+  id INT unsigned NOT NULL auto_increment;
 );  # 创建表时设置为自增列,默认从1开始
-create table table_name(
-  id int unsigned not null auto_increment;
+CREATE TABLE table_name(
+  id INT unsigned NOT NULL auto_increment;
 )engine=innodb auto_increment=100 charset=utf8;  # 从100开始
-alter table table_name id auto_increment=100;  # 从100开始
+ALTER TABLE table_name id auto_increment=100;  # 从100开始
 #重置序列
-   alter table table_name drop id;
-   alter table table_name add id int unsigned not null auto_increment first,add primary key (id);
+   ALTER TABLE table_name drop id;
+   ALTER TABLE table_name ADD id INT unsigned NOT NULL auto_increment first,ADD PRIMARY KEY (id);
 
  > Oracle
-select * from all_tab_comments       查询所有用户的表,视图等
-select * from user_tab_comments      查询本用户的表,视图等
-select * from all_col_comments       查询所有用户的表的列名和注释
-select * from user_col_comments      查询本用户的表的列名和注释
-select * from all_tab_columns        查询所有用户的表的列名等信息
-select * from user_tab_columns       查询本用户的表的列名等信息
+SELECT * FROM all_tab_comments       查询所有用户的表,视图等
+SELECT * FROM user_tab_comments      查询本用户的表,视图等
+SELECT * FROM all_col_comments       查询所有用户的表的列名和注释
+SELECT * FROM user_col_comments      查询本用户的表的列名和注释
+SELECT * FROM all_tab_columns        查询所有用户的表的列名等信息
+SELECT * FROM user_tab_columns       查询本用户的表的列名等信息
 
 Q: => 的含义
 A: => 是 Oracle 中调用存储过程的时候指定参数名进行调用
@@ -452,3 +454,93 @@ A: => 是 Oracle 中调用存储过程的时候指定参数名进行调用
 
 --查询指定条数的数据 > Oracle
 SELECT * FROM customer WHERE ROWNUM < 101
+
+--ASCII(X):返回指定列的 ASCII 码 > Oracle
+SELECT ASCII(column_name) FROM table_name;
+
+--CONCAT(X,Y):连接多个字段 > Oracle
+SELECT CONCAT(column_name1,column_name2) FROM table_name;
+SELECT CONCAT(CONCAT(column_name1,column_name2),column_name3) FROM employees;
+
+--INSTR(X,Str[,N]):查找指定字符(串)在指定列的位置 > Oracle
+SElECT INSTR(column_name,[指定字符串],[指定从第几位开始查找(可选参数)]),column_name FROM table_name;
+
+--LENGTH(X):获取指定列的长度
+SELECT LENGTH(column_name),column_name FROM table_name;
+
+--LOWER(X):将指定列的大写字母转换成小写字母 > Oracle
+SELECT LOWER(column_name),column_name FROM table_name;
+
+--UPPER(X):将指定列的小写字母转换成大写字母 > Oracle
+SELECT UPPER(column_name),column_name FROM table_name;
+
+--LTRIM(X[,Str]):按照特殊规则截去指定列的指定字符,可选参数为空则截去空格 > Oracle
+SELECT LTRIM(column_name,[截去的字符串(可选参数)]) FROM table_name;
+SELECT LTRIM('a1a2a3a4a5a6a7a8a9a','a1') FROM table_name;  --结果:2a3a4a5a6a7a8a9a
+SELECT LTRIM('a1aaa1a4a5a6a7a8a9a','a1'),code FROM table_name;  --结果:4a5a6a7a8a9a
+SELECT LTRIM('0a1a2a3a4a5a6a7a8a9a','a1') FROM table_name;  --结果:0a1a2a3a4a5a6a7a8a9a
+
+--RTRIM(X[,Str]):按照特殊规则截去指定列的指定字符,可选参数为空则截去空格 > Oracle
+SELECT LTRIM(column_name,[截去的字符串(可选参数)]) FROM table_name;
+
+--TRIM([Str FROM]Y):按照特殊规则截去指定列的指定字符,可选参数为空则截去空格 > Oracle
+SELECT TRIM([截去的字符串(可选参数) FROM ]column_name) FROM table_name;
+
+--REPLACE(X,Str1,Str2):将指定字符替换 > Oracle
+SELECT REPLACE(column_name,old_char,new_char),column_name FROM table_name;
+
+--SUBSTR(X,N1[,N2]):从指定列的指定位置截取指定长度的字符(串) > Oracle
+SELECT SUBSTR(code,start_index[,length(可选参数,默认到末尾)]),code FROM table_name;
+
+--ABS(X):取 X 的绝对值
+SELECT ABS(column_name) FROM table_name;
+
+--ACOS(X):取反余弦(xián)
+SELECT ACOS(column_name) FROM table_name;
+
+--COS(X):余弦
+SELECT COS(column_name) FROM table_name;
+
+--CEIL(X):大于或等于指定列的最小值
+SELECT CEIL(column_name) FROM table_name;
+
+--FLOOR(X):小于或等于指定列的最大值
+SELECT FLOOR(column_name) FROM table_name;
+
+--LOG(X,Y): X 为底 Y 的对数
+SELECT LOG(column_name1,column_name2) FROM table_name;
+
+--MOD(X,Y): X 除以 Y 的余数
+SELECT MOD(column_name1,column_name2) FROM table_name;
+
+--POWER(X,Y): X 的 Y 次幂
+SELECT POWER(column_name1,column_name2) FROM table_name;
+
+--ROUND(X,[Y]): X 在第 Y 位四舍五入
+SELECT ROUND(column_name) FROM table_name;
+ROUND(5.654,2)=5.65
+ROUND(351.654,-2)=400
+
+--SQRT(X): X 的平方根
+SELECT SQRT(column_name) FROM table_name;
+
+--TRUNC(X[,Y]): X 在第 Y 位截断
+SELECT TRUNC(column_name[,N(整数,默认0,四舍五入保留整数,负数往高位,正数往低位)]) FROM table_name;
+!与 ROUND() 类似
+
+--ADD_MONTHS(D,N):指定日期加指定月数后的新日期
+SELECT SYSDATE,ADD_MONTHS(SYSTEM,5) FROM table_name;
+
+--LAST_DAY(D):指定日期的最后一天
+SELECT SYSDATE,LAST_DAY(SYSDATE) FROM table_name;
+
+--ROUND(d[,FMT]):返回指定日期以 FMT 为格式的四舍五入后的日期值
+ FMT 参数:
+  'DDD':根据指定日期的 hhmmss 进行四舍五入确定 DAY 的值
+  'DAY':根据指定日期的 DAY 与其最近周的周日进行判断,取最近的那个周日的 DAY
+  'MONTH':根据指定日期的 DAY 与其最近月的1号进行判断,取最近的那个月的 MONTH
+  'YEAR':根据指定日期的 MONTH 与其最近年的1号进行判断,取最近的那个年的 YEAR
+  默认 'DDD'
+SELECT SYSDATE,ROUND(SYSDATE),ROUND(SYSDATE,'day'),ROUND(SYSDATE,'month'),ROUND(SYSDATE,'year') FROM table_name;
+
+--EXTRACT(FMT FROM D):提取日期中的特定部分
