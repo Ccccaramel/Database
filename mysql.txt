@@ -272,7 +272,50 @@ A:执行 show variables like '%secure%'; 发现 secure-file-priv 值为 NULL ,�
  myslq 运算符
   (略)
 
-******************** mysql 语句样例********************
+查看表的索引
+  show index from table_name;
+   Non_unique        如果索引不能包括重复词,则为 0 ,如果可以,则为 1
+   Key_name          索引的名称
+   Seq_in_index      索引中的列序列号,从 1 开始
+   Column_name       列名称
+   Collation         列以什么方式存储在索引中,在 MySQL 中,有值 A (升序)或 NULL (无分类)
+   Cardinality       索引中唯一值的数目的估计值.通过运行 ANALYZE TABLE 或 myisamchk -a 可以更新
+                     基数根据被存储为整数的统计数据来计数,所以即使对于小型表,该值也没有必要是精确的
+                     基数越大,当进行联合时, MySQL 使用该索引的机会就越大
+   Sub_part          如果列只是被部分地编入索引,则为被编入索引的字符的数目,如果整列被编入索引,则为 NULL
+   Packed            指示关键字如何被压缩,如果没有被压缩,则为 NULL
+   Null              如果列含有 NULL ,则含有 YES ,如果没有,则该列含有 NO
+   Index_type        用过的索引方法( BTREE FULLTEXT HASH RTREE)
+
+删除表的索引
+  先查看表的索引,获得待删除的索引的 Key_name
+  再执行 alter table table_name drop index Key_name;
+
+添加索引
+  ALTER TABLE table_name ADD UNIQUE KEY([列名1],[列名2],...);
+  !在表已存在数据的情况下会失败报错,可先清空表
+
+ON DUPLICATE KEY UPDATE
+  insert into table_name(name1,name2,name3,...)
+  values(value1,value2,value3,...)
+  ON DUPLICATE KEY UPDATE
+  name_1=value_1,
+  name_2=value_2,
+  ...;
+  此语法为 mysql 独有且表存在索引
+  向表插入一组数据,若插入的索引字段(集)的数据(集)在表中不存在或不包含索引(集)则直接插入
+  若存在则更新指定列(集)
+
+查看表结构  
+  show create table table_name;
+  包含 foreign_key_name
+
+删除外键
+  alter table table_name drop foreign key foreign_key_name;
+  这个 foreign_key_name 可不是你创建表时声明的另一张表的某一列的列名哦
+
+添加外键
+  alter table 表名 add constraint FK_ID foreign key(你的外键字段名) REFERENCES 外表表名(对应的表的主键字段名);
 
  create 创建表
 create table test(
@@ -354,9 +397,17 @@ update test set age=age+1;  # 所有人 age 属性值+1
 update test set age=replace(age,100,23) where IDCard>=1;
 
  union 操作符
-# 将两个以上的 select 语句结果组合到一个结果结合中
-# distinct 为可选参数,删除结果中重复的数据,若不加参数默认情况下同为此效果,可使用 all 参数显示全部数据
-select Name from test where Name like "%m" union distinct select Name from test where age>15;
+# select name1,name2,name3,...
+  from table_name1 [where conditions]
+  union [all|distinct]
+  select name1',name2',name3',...
+  from table_name2
+# 将两个以上的 select 语句结果组合到一个结果结合中,即合并结果集
+# name 要检索的列
+  table_name 要检索的数据表
+  conditions 条件
+  all 参数显示全部数据,即重复的数据也会显示
+  distinct 为可选参数,删除结果中重复的数据,若不加参数默认情况下同为此效果
 
  group by 分组
 select age,count(*) from test group by age;  # 各个年龄的人数
@@ -372,8 +423,9 @@ select t1.IDCard,t2.Course,t2.grade from test t1 left join test1 t2 on t1.IDCard
 select t1.IDCard,t2.Course,t2.grade from test t1 right join test1 t2 on t1.IDCard=t2.IDCard;  # t2(删掉 t1 中一条数据)
 
  order by 子句
-select * from test order by age ASC;  # 升序
-select * from test order by age DESC;  # 降序
+# select name1,name2,... from table_name order by name [ASC|DESC];
+# ASC 升序
+  DESC 降序
 
  where 子句
 select * from test where age>=16;
