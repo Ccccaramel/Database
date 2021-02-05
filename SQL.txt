@@ -9,13 +9,13 @@ SQL 语言分为五大类
   如果打开自动提交, DML 操作后也不需要手动提交:SET AUTOCOMMIT ON;
 
 **********SQL**********
-Q:如何将一个查询结果集作为另一个查询的条件
-A: B_table_name 的 name 作为 A_table_name 的条件
-    SELECT * from A_table_name a where a.name in (SELECT b.name from B_table_name b)
+将一个查询结果集作为另一个查询的条件
+   B_table_name 的 name 作为 A_table_name 的条件
+     SELECT * FROM A_table_name a where a.name in (SELECT b.name FROM B_table_name b)
   如果有多条语句，可以使用字段相加再等于 
-    SELECT * from A_table_name a where a.fld1+a.fld2 in (SELECT b.fld1+b.fld2 from B_table_name b)
+     SELECT * FROM A_table_name a where a.fld1+a.fld2 in (SELECT b.fld1+b.fld2 FROM B_table_name b)
   使用INNER JOIN 进行查询
-    SELECT a.* from A_table_name a inner join (SELECT b.name from B_table_name b group by b.name) c on a.name=c.name
+     SELECT a.* FROM A_table_name a inner join (SELECT b.name FROM B_table_name b group by b.name) c on a.name=c.name
 
 
 索引
@@ -27,51 +27,51 @@ A: B_table_name 的 name 作为 A_table_name 的条件
   普通索引:
     最基本的索引,无任何限制
     创建索引:
-       CREATE index indexName on mytable(username(length));
+       CREATE index indexName on table_name(username(length));
     添加索引:
-       alter table table_name add index indexName(columnName);
+       ALTER TABLE table_name ADD index indexName(columnName);
     创建表时指定:
-       CREATE table mytable(
+       CREATE TABLE table_name(
          ID int not null,
          username varchar(16) not null,
          index [indexName] (username(length))
        );
     删除索引:
-       DROP index [indexName] on mytable;
+       DROP index [indexName] on table_name;
   唯一索引:
     索引列的值必须唯一,但允许有空值,若为组合索引,则列值的索引必须唯一
     创建索引:
-       CREATE unique index indexName on mytable(username(length))
-       alter table table_name add constraint unique_p2sex unique(psex);
+       CREATE unique index indexName on table_name(username(length))
+       ALTER TABLE table_name ADD constraint unique_p2sex unique(psex);
     修改索引:
-       alter table mytable add unique [indexName] (username(length))
+       ALTER TABLE table_name ADD unique [indexName] (username(length))
     创建时指定:
-       CREATE table mytable(
+       CREATE TABLE table_name(
          ID int not null,
          username varchar(16) not null,
          unique [indexName] (username(length))
        );
-    使用 alter 命令添加和删除索引
+    使用 ALTER 命令添加和删除索引
       1.添加一个主键 
-         alter table mytable add primary key(column_list);
+         ALTER TABLE table_name ADD primary key(column_list);
       2.创建索引的值必须是唯一的
-         alter table mytable add unique indexName(column_list);
-         alter table tableName add constraint indexName unique (columnName);  -- Oracle
+         ALTER TABLE table_name ADD unique indexName(column_list);
+         ALTER TABLE table_name ADD constraint indexName unique (columnName);  -- Oracle
       3.添加普通索引,索引值会出现多次
-         alter table mytable add indexName(column_list);
+         ALTER TABLE table_name add indexName(column_list);
       4.指定索引为 fulltext ,用于全文索引 
-         alter table mytable add fulltext indexName(column_list);
+         ALTER TABLE table_name ADD fulltext indexName(column_list);
       添加索引:
-         alter table mytable add index(c);
+         ALTER TABLE table_name ADD index(c);
       删除索引:
-         alter table mytable DROP index c;
-         alter table tableName DROP constraint indexName;  -- Oracle
-    使用 alter 命令添加和删除主键
+         ALTER TABLE table_name DROP index c;
+         ALTER TABLE table_name DROP constraint indexName;  -- Oracle
+    使用 ALTER 命令添加和删除主键
       添加主键索引:
-         alter table table_name modify id int not null;
-         alter table table_name add primary key (id);
+         ALTER TABLE table_name MODIFY id int not null;
+         ALTER TABLE table_name ADD primary key (id);
       删除主键索引:
-         alter table table_name DROP primary key;
+         ALTER TABLE table_name DROP primary key;
     显示索引信息:
        show index from table_name;
 
@@ -82,7 +82,7 @@ A: B_table_name 的 name 作为 A_table_name 的条件
   删除临时表:
      DROP table t;
   other:
-     CREATE temporary t as( SELECT * from table_name );
+     CREATE temporary t as( SELECT * FROM table_name );
 
 复制表
   完全复制数据表,包括表的结构,索引,默认值等,仅仅使用 CREATE table ... SELECT 命令是无法实现的
@@ -93,7 +93,7 @@ A: B_table_name 的 name 作为 A_table_name 的条件
        INSERT into clone( table_name_id, table_name_title ) SELECT table_name_id,table_name_title from table_name;
   另一种复制方法:
     1. CREATE table clone like table_name;
-    2. INSERT into clone SELECT * from table_name;
+    2. INSERT into clone SELECT * FROM table_name;
 
 获取服务器元数据
    SELECT version()       服务器版本信息
@@ -103,18 +103,18 @@ A: B_table_name 的 name 作为 A_table_name 的条件
    show variables         服务器配置变量
 
 统计重复数据
-SELECT count(*) as repetitions,Course  from table_name1 group by Course having repetitions>1; 
+SELECT count(*) as repetitions,Course  FROM table_name1 group by Course having repetitions>1; 
 
 过滤重复数据 > Oracle
-SELECT distinct column_name from table_name;
+SELECT distinct column_name FROM table_name;
 
 删除重复数据
   方法一:
-   CREATE table tmp SELECT col1,col2,col3 from table_name group by (col1,col2,col3);
+   CREATE table tmp SELECT col1,col2,col3 FROM table_name group by (col1,col2,col3);
    DROP table table_name;
    alter table tmp rename to table_name;
   方法二:
-     alter ignore table table_name add primary key (col1,col2);
+     alter ignore table table_name ADD primary key (col1,col2);
 
  sql 注入
   如果你通过网页获取用户输入的数据并将其插入数据库
@@ -134,9 +134,9 @@ SELECT distinct column_name from table_name;
 
 导出数据
   普通导出:
-     SELECT * from table_name into outfile 'D:\\exe\\mysql-8.0.20-winx64\\output\\table_name.txt';
+     SELECT * FROM table_name into outfile 'D:\\exe\\mysql-8.0.20-winx64\\output\\table_name.txt';
   导出 CSV 格式:
-     SELECT * from table_name into outfile '/tmp/table_name.txt' fields terminated by ',' enclosed by '"' lines terminated by '\r\n';
+     SELECT * FROM table_name into outfile '/tmp/table_name.txt' fields terminated by ',' enclosed by '"' lines terminated by '\r\n';
   自定义导出(各值用 , 隔开):
      SELECT * into outfile '/tmp/table_name.txt' fields terminated by ',' optionally enclosed by '"' lines terminated by '\n' from table_name;
 
@@ -172,57 +172,20 @@ CREATE table table_name(
   age int,
   SubmissionDate date,
   primary key (IDCard)
-)engine=INNODB default charset=utf8;
+)engine=INNODB DEFAULT charset=utf8;
 
-CREATE table table_name1(
+CREATE TABLE table_name1(
   IDCard int unsigned auto_increment,
   Course varchar(20),
   grade int,
   primary key (IDCard)
-)engine=INNODB default charset=utf8;
+)engine=INNODB DEFAULT charset=utf8;
  
  DROP 删除表
-DROP table table_name; 
+DROP TABLE table_name; 
 
  INSERT 插入
-insert into table_name(Name,age) values ("Tom",12);
-insert into table_name(Name,age) values ("Marry",22);
-insert into table_name(Name,age) values ("Jim",15);
-insert into table_name(Name,age) values ("Kara",32);
-insert into table_name(Name,age) values ("Apple",14);
-insert into table_name(Name,age) values ("Jeck",16);
-insert into table_name(Name,age) values ("Sock",21);
-insert into table_name(Name,age) values ("Jarry",22);
-insert into table_name(Name,age) values ("Jom",18);
-insert into table_name(Name,age) values ("Mara",22);
-insert into table_name(Name,age) values ("Opple",14);
-insert into table_name(Name,age) values ("Jack",17);
-insert into table_name(Name,age) values ("Seck",25);
-
-insert into table_name1(IDCard,Course,grade) values (1,"PHP",98);
-insert into table_name1(IDCard,Course,grade) values (1,"Java",76);
-insert into table_name1(IDCard,Course,grade) values (1,"HTML",94);
-insert into table_name1(IDCard,Course,grade) values (2,"PHP",73);
-insert into table_name1(IDCard,Course,grade) values (2,"Java",98);
-insert into table_name1(IDCard,Course,grade) values (2,"HTML",86);
-insert into table_name1(IDCard,Course,grade) values (3,"PHP",72);
-insert into table_name1(IDCard,Course,grade) values (3,"C",75);
-insert into table_name1(IDCard,Course,grade) values (3,"HTML",74);
-insert into table_name1(IDCard,Course,grade) values (4,"PHP",71);
-insert into table_name1(IDCard,Course,grade) values (4,"Java",96);
-insert into table_name1(IDCard,Course,grade) values (4,"HTML",94);
-insert into table_name1(IDCard,Course,grade) values (5,"PHP",76);
-insert into table_name1(IDCard,Course,grade) values (5,"Java",70);
-insert into table_name1(IDCard,Course,grade) values (6,"PHP",85);
-insert into table_name1(IDCard,Course,grade) values (6,"HTML",83);
-insert into table_name1(IDCard,Course,grade) values (7,"PHP",88);
-insert into table_name1(IDCard,Course,grade) values (7,"Java",93);
-insert into table_name1(IDCard,Course,grade) values (8,"PHP",79);
-insert into table_name1(IDCard,Course,grade) values (8,"C",78);
-insert into table_name1(IDCard,Course,grade) values (8,"Java",93);
-insert into table_name1(IDCard,Course,grade) values (8,"HTML",85);
-insert into table_name1(IDCard,Course,grade) values (9,"PHP",73);
-insert into table_name1(IDCard,Course,grade) values (9,"C",84);
+INSERT INTO table_name(column_name1[, column_name2[, ...]]) VALUES (value_1[,value_2[, ...]]);
 
 insert ignore into 插入 > mysql
 #如果插入数据库已存在的数据就会跳过这条语句,若没有就插入
@@ -263,24 +226,24 @@ SELECT Name FROM table_name where Name like "%m" union distinct SELECT Name FROM
 SELECT age,count(*) FROM table_name group by age;  # 各个年龄的人数
 SELECT coalesce(name,"总数"),sum(age) as count FROM table_name group by name with rollup;  # 年龄和
 
-* join 笛卡尔积
+* JOIN 笛卡尔积
   连接两张表,大致可分为内连接,外连接,右连接,左连接,自然连接
-    SELECT * FROM table1 a left join table2 b on a.key=b.key;    -- 左连接
-    SELECT * FROM table1 a inner join table2 b on a.key=b.key;   -- 内连接,交集
-    SELECT * FROM table1 a right join table2 b on a.key=b.key;   -- 右连接
-    SELECT * FROM table1 a left join table2 b on a.key=b.key where b.key is NULL;    -- 左连接-交集
-    SELECT * FROM table1 a right join table2 b on a.key=b.key where a.key is NULL;   -- 右连接-交集
-    SELECT * FROM table1 a full outer join table2 b on a.key=b.key;  -- 外连接,并集
-    SELECT * FROM table1 a full outer join table2 b on a.key=b.key where a.key is NULL or b.key is NULL;  -- 并集-交集
+    SELECT * FROM table_name1 a left JOIN table_name2 b ON a.key=b.key;    -- 左连接
+    SELECT * FROM table_name1 a inner JOIN table_name2 b ON a.key=b.key;   -- 内连接,交集
+    SELECT * FROM table_name1 a right JOIN table_name2 b ON a.key=b.key;   -- 右连接
+    SELECT * FROM table_name1 a left JOIN table_name2 b ON a.key=b.key where b.key is NULL;    -- 左连接-交集
+    SELECT * FROM table_name1 a right JOIN table_name2 b ON a.key=b.key where a.key is NULL;   -- 右连接-交集
+    SELECT * FROM table_name1 a full outer JOIN table_name2 b ON a.key=b.key;  -- 外连接,并集
+    SELECT * FROM table_name1 a full outer JOIN table_name2 b ON a.key=b.key where a.key is NULL or b.key is NULL;  -- 并集-交集
   内连接
-    四种写法: inner join , where(等值连接) , straight_join , join(省略 inner )
-    SELECT * FROM table1 a inner join table2 b on a.id=b.id;
-    SELECT * FROM table1 a,table2 b where a.id=b.id;
-    SELECT * FROM table1 a straight_join table2 b on a.id=b.id;  --冷门很少用
-    SELECT * FROM table1 a join table2 b on a.id=b.id;
+    四种写法: inner JOIN , where(等值连接) , straight_join , JOIN(省略 inner )
+    SELECT * FROM table_name1 a inner join table_name2 b ON a.id=b.id;
+    SELECT * FROM table_name1 a,table_name2 b where a.id=b.id;
+    SELECT * FROM table_name1 a straight_join table_name2 b ON a.id=b.id;  --冷门很少用
+    SELECT * FROM table_name1 a JOIN table_name2 b ON a.id=b.id;
     Q:内连接的四种写法中那种最优呢?
   自然连接
-     nature join
+     nature JOIN
     自然连接可理解为 using 子句的简化版,它找出两个表中相同的列作为连接条件进行连接
     有左自然连接,右自然连接,普通自然连接
     找不同
@@ -289,12 +252,12 @@ SELECT coalesce(name,"总数"),sum(age) as count FROM table_name group by name w
       笛卡尔积:SELECT * FROM t_blog NATURE JOIN t_type;
 
 using 子句
-在连接 sql 语句中, on 子句的语法格式为 a.id=b.id 
-当模式设计对连接表的列采用相同的命名样式时,就可以使用 using 语法来简化 on 语法,格式为: using(columnName);
-即 using 的功能相当于 on ,区别在于 using 指定一个属性名用于连接两个表,而 on 指定一个条件
-除此之外, select * 时 using 会除去 using 的列,而 on 不会
+在连接 sql 语句中, ON 子句的语法格式为 a.id=b.id 
+当模式设计对连接表的列采用相同的命名样式时,就可以使用 using 语法来简化 ON 语法,格式为: using(columnName);
+即 using 的功能相当于 ON ,区别在于 using 指定一个属性名用于连接两个表,而 ON 指定一个条件
+除此之外, select * 时 using 会除去 using 的列,而 ON 不会
 
- join 原理
+join 原理
    Nested Loop Join(NLJ) 算法
     嵌套循环算法,循环外层是驱动表,内层是被驱动表
     驱动表会驱动被驱动表进行连接操作
@@ -341,21 +304,20 @@ using 子句
     所以如果要优化内连接,可以在大表上建立索引以提高性能,在小表上建立索引时, mysql Optimizer 会认为用大表驱动小表效率更快,转而用大表驱动小表
     想要从快速匹配的角度优化 join ,首先就是找出谁是驱动表,谁是被驱动表,然后在被驱动表上建立索引即可
 
- order by 排序
-> MYSQL,ORACLE
+order by 排序 > MYSQL,ORACLE
 select * FROM table_name order by age ASC;  # 升序
 select * FROM table_name order by age DESC;  # 降序
 
- where 条件
+where 条件
 SELECT * FROM table_name where age>=16;
 
- like 模糊匹配
+like 模糊匹配
 SELECT * FROM table_name where Name like '%m';  # 以 m 结尾
 SELECT * FROM table_name where Name like 'J%';  # 以 J 开头
 SELECT * FROM table_name where Name like '_i_';  # 三位且中间为 i 
 (更多见正则表达式)
 
- NULL 处理
+NULL 处理
 SELECT *,age+ifnull(SubmissionDate,100) FROM table_name;  // 若值为 NULL 则用指定值代替
 
 正则表达式
@@ -377,47 +339,35 @@ SELECT Name FROM table_name where Name regexp '^J';
 SELECT Name FROM table_name where Name regexp 'k$';
 SELECT Name FROM table_name where Name regexp 'ar';
 
- ALTER 命令
---删除列
-> MYSQL,ORACLE
-   ALTER TABLE table_name DROP column column_name;
---增加列
-> MYSQL,ORACLE
-   ALTER TABLE table_name add column_name column_type [default column_value [not null]];
+ALTER 命令
+--删除列 > MYSQL,ORACLE
+ALTER TABLE table_name DROP column column_name;
+ALTER TABLE table_name DROP column_name1[, column_name2[, ...]];
+--增加列 > MYSQL,ORACLE
+ALTER TABLE table_name ADD column_name column_type [DEFAULT column_value [not null]];
+ALTER TABLE table_name ADD (column_name1 column_type1[, column_name2 column_type2[, ...]])
 --更改列名,也可使用 change
-> MYSQL
-   ALTER TABLE table_name modify old_column_name new_column_name new_column_type;
-> ORACLE
-   ALTER TABLE table_name rename column old_column_name TO new_column_name;
-   ALTER TABLE table_name modify (column_name column_type);
+ALTER TABLE table_name MODIFY old_column_name new_column_name new_column_type; > MYSQL
+ALTER TABLE table_name rename column old_column_name TO new_column_name; > ORACLE
+ALTER TABLE table_name MODIFY (column_name column_type); > ORACLE
 --列类型更改
-> MYSQL
-   ALTER TABLE table_name modify column_name new_column_type;
-> ORACLE
-   ALTER TABLE table_name modify (column_name column_type);
+ALTER TABLE table_name MODIFY column_name new_column_type; > MYSQL
+ALTER TABLE table_name MODIFY (column_name column_type); > ORACLE
 --更改列类型以及默认值
-> MYSQL
-   ALTER TABLE table_name change column_name column_type NOT NULL default column_value;
+ALTER TABLE table_name change column_name column_type NOT NULL DEFAULT column_value; > MYSQL
 --更改默认值
-> MYSQL
-   ALTER TABLE table_name ALTER column_name set default column_value;
+ALTER TABLE table_name ALTER column_name set DEFAULT column_value; > MYSQL
 --删除默认值
-> MYSQL
-   ALTER TABLE table_name ALTER column_name DROP default;
+ALTER TABLE table_name ALTER column_name DROP DEFAULT; > MYSQL
 --更改表类型
-> MYSQL
-   eg:ALTER TABLE table_name engine=myisam;  # 将 table_name 表的类型更改为 myisam
+ALTER TABLE table_name engine=myisam;  # 将 table_name 表的类型更改为 myisam > MYSQL
 --修改表名
-> MYSQL
-   ALTER TABLE table_name rename TO new_table_name;
+ALTER TABLE table_name rename TO new_table_name; > MYSQL
 --添加外键
-> ORACLE
-  ALTER TABLE A_table_name add constraint fk_name FOREIGN KEY(A_column_name) references B_table_name(B_column_name);
+ALTER TABLE A_table_name ADD constraint fk_name FOREIGN KEY(A_column_name) references B_table_name(B_column_name); > ORACLE
 --删除外键
-> MYSQL
-   ALTER TABLE table_name DROP FOREIGN KEY column_name;
-> ORACLE
-   ALTER TABLE table_name DROP constraint fk_name;
+ALTER TABLE table_name DROP FOREIGN KEY column_name; > MYSQL
+ALTER TABLE table_name DROP constraint fk_name; > ORACLE
 
  auto_increment 自增序列
 CREATE TABLE table_name(
@@ -461,6 +411,10 @@ SELECT ASCII(column_name) FROM table_name;
 --CONCAT(X,Y):连接多个字段 > Oracle
 SELECT CONCAT(column_name1,column_name2) FROM table_name;
 SELECT CONCAT(CONCAT(column_name1,column_name2),column_name3) FROM employees;
+
+S1||S2:将字符串S1,S2连接成一个新的字符串
+SELECT '1+1='||'2' FROM table_name;
+  
 
 --INSTR(X,Str[,N]):查找指定字符(串)在指定列的位置 > Oracle
 SElECT INSTR(column_name,[指定字符串],[指定从第几位开始查找(可选参数)]),column_name FROM table_name;
@@ -545,3 +499,78 @@ SELECT SYSDATE,ROUND(SYSDATE),ROUND(SYSDATE,'day'),ROUND(SYSDATE,'month'),ROUND(
 
 --EXTRACT(FMT FROM D):提取日期中的特定部分
 
+to_char(N):将数字(N)转换成字符(Oracle)
+SELECT to_char(N) FROM table_name;
+
+to_date2(S,[转换格式]):将字符(S)转换成日期(Oracle)
+  转换格式:
+    y      年;yy:年的最后两位,yyy:年的最后三位
+    m      月;mm:用两位数表示月份,mon:简写(nov),month:全称(november)
+    d      日;dd:当月第几天,ddd:当年第几天,dy:当周第几天且简写(fri),day:当周第几天且全写(friday)
+    h      时;hh:两位数表示12小时制,hh24:两位数表示24小时制
+    m      分;mi:两位数表示分钟
+    s      秒;ss:两位数表示秒
+    q      季;q:一位数表示季度(1-4)
+    w      周;ww:当年第几周,w:当月第几周
+    24小时制的时间范围:00:00:00-23:59:59
+    12小时制的时间范围: 1:00:00-12:59:59
+SELECT to_date2(S,'yy-mm-dd hh24:mi:ss') FROM table_name;
+
+CAL_1.before(CLA_2):比较日期(Date)大小,判断 CAL_1 是否比 CLA_2 早,返回类型 Boolean
+  calendar_1.before(calendar_2);
+
+存储过程(mysql)
+  从mysql5.0 版本开始支持存储过程
+  存储过程(Stored Procedure)是一种在数据库中存储复杂程序以便外部程序调用的一种数据库对象
+  存储过程是为了完成特定功能的 SQL 语句集,经编译创建并保存在数据库中
+  用户通过指定存储过程的名字并给定参数(需要时)来调用执行
+  存储过程就是 SQL 语言层面的代码封装与重用
+  优点
+    存储过程可以封装并隐藏复杂的商业逻辑
+    存储过程可传回值,并且可以接受参数
+    存储过程无法使用 SELECT 指令来执行,因为它是子程序,与查看表,数据或用户定义函数不同
+    存储过程可以用来在数据检验,强制实行商业逻辑等
+  缺点
+    定制化于特定的数据库上,切换到其它厂商的数据库系统时,需要重写原有的存储过程
+    存储过程的性能调校与撰写,受限于各种数据库系统
+  创建
+    创建的存储过程保存在数据库的数据字典中
+    CREATE
+        [DEFINER = {user | CURRENT_USER}]
+      PROCEDURE sp_name ([proc_parameter[,...]])
+        [characteristic ...] routine_body
+    
+    proc_parameter:
+      [ IN | OUT | INOUT ] param_name type
+
+    characteristic:
+      COMMENT 'string'
+       | LANGUAGE SQL
+       | [NOT] DETERMINISTIC
+       | { CONTAINS SQL | NO SQL | READS SQL DATA | MODIFIES SQL DATA }
+       | SQL SECURITY { DEFINER | INVOKER }
+
+    routine_body:
+      Valid SQL routine statement
+
+    [begin_label:] BEGIN
+      [statement_list]
+        ...
+    END [end_label]
+  声明语句结束符可以自定义
+    DELIMITER $$
+     或
+    DELIMITER //
+  声明存储过程
+    CREATE PROCEDURE demo_in_parameter(IN p_in int)
+  存储过程开始和结束符号
+    BEGIN ... END
+  变量赋值
+    SET @p_in=1
+  变量定义
+    DECLARE l_int int unsigned DEFAULT 4;
+  创建 mysql 存储过程,存储函数
+    create procedure 存储过程名(参数)
+  存储过程体
+    create function 存储函数名(参数)
+  实例
