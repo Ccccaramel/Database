@@ -482,3 +482,125 @@ alter table test id auto_increment=100;  # 从100开始
 #重置序列
    alter table test drop id;
    alter table test add id int unsigned not null auto_increment first,add primary key (id);
+
+* 建议因管理员方式运行命令提示符
+
+* 下载 mysql 至本地
+   Windows 操作系统中有两种安装 mysql 的方式:
+    1.下载 MSI 点击安装
+    2.下载 ZIP 解压即可使用
+      此方法安装后默认是没有 my.ini 配置文件的,虽然可以通过命令行修改但重启之后就会失效
+      解决方法:
+        a.在 mysql 根目录下新建 my.ini 将以下代码复制进去并保存
+            [mysql]
+            default-character-set = utf8mb4
+            [mysqld]
+            port = 3306
+            basedir = D:\exe\mysql-8.0.20-winx64
+            max_connections=200
+            character-set-server = utf8mb4
+            default-storage-engine=INNODB
+          其中 basedir 根据实际 mysql 安装位置进行更改
+        c.重新生成 data 文件
+          执行 mysqld --initialize --console 命令(非首次使用在执行前需确保 data 文件是空的)
+          在输出的信息中包含 root 用户的初始密码
+        d.启动服务
+          服务窗口启动:计算机管理->服务-> mysql ->启动
+           cmd 启动:进入 mysql 的 bin 目录下执行 net start mysql
+
+Q:如何启动并进入 mysql ?
+A:启动 mysql 服务
+    服务窗口启动:计算机管理->服务-> mysql ->启动
+     cmd 启动: net start mysql
+  登录
+     ctrl+r -> cmd -> cd /d [ mysql 的 bin 目录路径](若配置了环境变量则可省去此步)
+    执行命令 mysql -uroot -p ,密码为 root 即可进入
+  退出
+     exit/quit
+  终止 mysql 服务(每次退出后不要忘记)
+     net stop mysql
+
+Q:如何解决使用 Navicat 连接 MySQL 出现2059错误?
+A:原因:
+     mysql8 之前的版本中加密规则是 mysql_native_password ,而在 mysql8 之后,加密规则是 caching_sha2_password
+  解决-更改加密规则:
+     alter user 'root'@'localhost' identtified by 'root' password expire never;  # 更改加密方式
+     alter user 'root'@'localhost' identified with mysql_native_password by 'root';  # 更新用户密码
+     flush privileges;  // 刷新权限
+    远程连接请将'localhost'换成'%';
+
+Q:如何修改 root 的密码?
+A:执行 alter user '[用户名]'@'localhost' identified by '[新密码]';
+
+* 常用命令
+  查看 mysql 服务状态           sc query mysql
+  启动 mysql 服务               net start mysql 
+  终止 mysql 服务               net stop mysql
+  退出 mysql                    exit/quit                    
+  列出所有数据库                 show databases;    
+  删除指定数据库                 drop table [数据库名];                                                                  
+  选择并进入指定数据库           use [数据库名];                                                           
+  列出当前数据库的所有表         show tables;                                                                                                       
+  查看 mysql 的端口号           show global variables like 'port'; 
+  查看当前注册用户               select user,host,port from mysql.user;                             
+  修改 root 用户密码            alter user '[用户名]'@'localhost' identified by '[新密码]';   
+  查看 secure-file-priv 值      show variables like '%secure%';
+
+Q:如何获取 mysql 的 jar 包?
+A:进入 https://dev.mysql.com/downloads/connector/j/ 
+  下拉菜单选择 Platform Independent 项,下载后解压即在文件夹中
+
+Q: eclipse 的 Java 项目如何连接 mysql ?
+A: Java 连接 mysql 需要驱动包,即 jar 包
+  右键你的项目-> Build Path ->Configure Build Path ->Libraries -> Add External JARs -> Apply 即可
+
+Q:导出数据时报错:
+   The MySQL server is running with the --secure-file-priv option so it cannot execute this statement
+  如何解决?
+A:执行 show variables like '%secure%'; 发现 secure-file-priv 值为 NULL ,代表禁止导出,
+
+* mysql NULL 值处理
+  当查询条件的字段为 NULL 时,该命令可能会无法工作
+  未处理此类情况, mysql 提供了三大运算符:
+    IS NULL:当列的值是 NULL ,此运算符返回 true
+    IS NOT NULL:当列的值不为 NULL ,运算符返回 true
+    <=>:比较运算符(不同于 = 运算符),当比较的两个值相等或都为 NULL 时返回 true
+  不要使用 ==NULL 或 !=NULL 在列中查找 NULL 值
+  在 mysql 中, NULL 值与任何其它值的比较(即使是 NULL )永远返回 NULL ,即 NULL==NULL 返回 NULL
+     select *,age+ifnull(SubmissionDate,100) from test;
+
+ mysql 事务
+  mysql 主要用于处理操作量大,复杂度高的数据
+  例如当你删除一个员工信息,那么你既要删除员工的基本资料,还要删除该员工的其它相关信息,这些数据库操作语句就构成一个事务
+  在 mysql 中只有使用 innodb 数据库引擎的数据库或表才支持事务
+  事务处理可以用来维护数据库的完整性,保证成批的 sql 语句要么全部执行,要么全部执行
+  事务的4个必要条件:
+    1.原子性
+      一个事务中的所有操作,要么全部完成,要么全部未完成(已执行的会回滚)
+    2.一致性
+      在事务开始前和事务结束后,数据库的完整性没有被破坏
+    3.独立性(隔离性)
+      数据库允许多个并发事务同时对数据进行读写和修改的能力,可以防止多个事务并发执行时由于交叉执行而导致数据不一致
+    4.持久性
+      事务处理后,对数据的修改是永久的
+  mysql 命令行的默认设置下,事务都是自动提交的,即执行 sql 语句后就会马上执行 commit 操作
+  显式开启事务,你可以执行 begin 或 start transaction ,若想禁止自动提交可执行 set autocommit=0
+
+ mysql 事务控制语句
+  1. begin 或 start transaction 显式地开启一个事务
+  2. commit 也可以使用 commit work ,二者等价, commit 会提交事务,并使已对数据库进行地所有修改成为永久性
+  3. rollback 也可使用 rollback work ,二者等价, 回滚会结束用户地事务,并撤销正在进行的所有未提交的修改
+  4. savepoint identifier , savepoint 允许在事务中创建一个保存点,一个事务中可以有多个 savepoint
+  5. release savepoint identifier 删除一个事务的保存点,当没有指定的保存点时,执行该语句会抛出一个异常
+  6. rollback to identifier 把事务回滚到标记点
+  7. set transaction 用来设置事务的隔离级别
+     innodb 存储引擎提供事务的隔离级别有 read uncommitted , read committed , repeatable read 和 serializable
+
+ mysql 事务处理的主要两种方法  
+  1.用 begin , rollback , commit 来实现
+    a. begin 开始一个事务
+    b. rollback 事务回滚
+    c. commit 事务确认
+  2.直接用 set 来改变 mysql 的自动提交模式
+    a. set autocommit=0禁止自动提交
+    b. set autocommit=1 开启自动提交
