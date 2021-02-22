@@ -166,3 +166,9 @@ A:在 plsql 中通过 ctrl+e 先查看你执行历史
   1.查看执行 sql 历史记录
      Ctrl+E 
   2.选中 SQL 语句按 F8 执行 
+
+Q:使用 PL/SQL 登录 Oracle 弹出空白对话框?
+A:以管理员身份运行
+
+Q:通过 PL/SQL 查询的数字类型数据显示的是科学记数法?
+A: Configure > Preferences > Window Types > SQL Window > 勾选"Number fields to_char"
