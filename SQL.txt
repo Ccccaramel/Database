@@ -83,6 +83,22 @@ SQL 语言分为五大类
      DROP table t;
   other:
      CREATE temporary t as( SELECT * FROM table_name );
+  eg:
+    Create Global Temporary Table Table_Name
+    (
+      v_ename VARCHAR2(255),
+      v_classtype VARCHAR2(255) 
+    )
+    On Commit Preserve Rows;
+    select * from Table_Name;
+
+on commit delete rows
+  事务完成,临时表中的数据就会消失
+on commit preserve rows
+  会话结束,临时表中的数据就会消失
+注意：创建了临时表之后,对于临时表的定义是永久的存放在数
+
+据库中的
 
 复制表
   完全复制数据表,包括表的结构,索引,默认值等,仅仅使用 CREATE table ... SELECT 命令是无法实现的
@@ -201,7 +217,7 @@ insert ignore into table_name1(IDCard,Course,grade) values (9,"C",84);
 如果表包含多个唯一索引,并且新行复制了在不同的唯一索引中的不同旧行的值,则有可能是一个单一行替换了多个旧行
 replace into table_nametb(id,name,age)values(1,"aa",12);
 
-delete 删除数据
+delete 删除/清空数据
 delete FROM table_name where IDCard=4;
 
  binary 关键字
@@ -305,7 +321,7 @@ join 原理
     想要从快速匹配的角度优化 join ,首先就是找出谁是驱动表,谁是被驱动表,然后在被驱动表上建立索引即可
 
 order by 排序 > MYSQL,ORACLE
-select * FROM table_name order by age ASC;  # 升序
+select * FROM table_name order by age ASC;  # 升序(默认)
 select * FROM table_name order by age DESC;  # 降序
 
 where 条件
@@ -574,3 +590,51 @@ CAL_1.before(CLA_2):比较日期(Date)大小,判断 CAL_1 是否比 CLA_2 早,�
   存储过程体
     create function 存储函数名(参数)
   实例
+
+**最近写了一个 SQL
+  查询排序后的第一条数据
+    select * from powerSupplierOrders pso_c
+    where rownum = 1
+    order by pso_c.startlifecycle desc;
+  此写法是错的,它是先取第一条数据,再排序
+
+**在 PL/SQL 执行如下语句时报错"ORA_00922:选项缺失或无效"
+    SET SERVEROUTPUT ON  
+            DECLARE    
+            v_ename VARCHAR2(255); 
+            v_classtype VARCHAR2(255);  
+            CURSOR emp_cursor IS    
+            SELECT s.name,s.classtype FROM simpletypes s WHERE s.code='A181';   
+            BEGIN  
+        OPEN emp_cursor;   
+        FETCH emp_cursor INTO v_ename,v_classtype;   
+            DBMS_OUTPUT.PUT_LINE(v_ename||','||v_classtype);   
+            CLOSE emp_cursor;   
+            END; 
+  原因是该语句应该使用命令行执行(在 Command Window 窗口中执行)
+  若想在 SQL Window 中执行,将第一行去掉即可
+
+set serveroutput on 命令
+  该命令设置环境变量 serveroutput 为打开状态,从而使得 PL/SQL 程序能够在 SQL*plus 中输出结果
+  你可以将其写在 *\oracle\product\10.2.0\*\sqlplus\admin 的 glogin.sql 中,打开 sqlplus 时会自动加载这个文件
+
+其它 set 命令
+  set colsep' ';            //-域输出分隔符
+  set echo off;             //显示start启动的脚本中的每个sql命令，缺省为on
+  set echo on               //设置运行命令是是否显示语句
+  set feedback on;          //设置显示“已选择XX行”
+  set feedback off;         //回显本次sql命令处理的记录条数，缺省为on
+  set heading off;          //输出域标题，缺省为on
+  set pagesize 0;           //输出每页行数，缺省为24,为了避免分页，可设定为0。
+  set linesize 80;          //输出一行字符个数，缺省为80
+  set numwidth 12;          //输出number类型域长度，缺省为10
+  set termout off;          //显示脚本中的命令的执行结果，缺省为on
+  set trimout on;           //去除标准输出每行的拖尾空格，缺省为off
+  set trimspool on;         //去除重定向（spool）输出每行的拖尾空格，缺省为off
+  set serveroutput on;      //设置允许显示输出类似dbms_output
+  set timing on;            //设置显示“已用时间：XXXX”
+  set autotrace on-;        //设置允许对执行的sql进行分析
+  set verify off            //可以关闭和打开提示确认信息old 1和new 1的显示.
+
+dbms_output.put_line()
+  可以输出参数的值
