@@ -636,5 +636,6 @@ set serveroutput on 命令
   set autotrace on-;        //设置允许对执行的sql进行分析
   set verify off            //可以关闭和打开提示确认信息old 1和new 1的显示.
 
-dbms_output.put_line()
+
+dbms_output.put_line() > Oracle[存储过程]
   可以输出参数的值
