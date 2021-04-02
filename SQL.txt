@@ -458,6 +458,7 @@ SELECT TRIM([截去的字符串(可选参数) FROM ]column_name) FROM table_name
 
 --REPLACE(X,Str1,Str2):将指定字符替换 > Oracle
 SELECT REPLACE(column_name,old_char,new_char),column_name FROM table_name;
+UPDATE table_name SET column_name=REPLACE(column_name,'[old_str]','[new_str]') WHERE column_name LIKE '%%';
 
 --SUBSTR(X,N1[,N2]):从指定列的指定位置截取指定长度的字符(串) > Oracle
 SELECT SUBSTR(code,start_index[,length(可选参数,默认到末尾)]),code FROM table_name;
