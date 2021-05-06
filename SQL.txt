@@ -356,7 +356,7 @@ SELECT Name FROM table_name where Name regexp 'k$';
 SELECT Name FROM table_name where Name regexp 'ar';
 
 ALTER 命令
---删除列 > MYSQL,ORACLE
+--删除列 > MYSQL,ORACLE(表示 MYSQL 与 ORACLE 的语法是一样的)
 ALTER TABLE table_name DROP column column_name;
 ALTER TABLE table_name DROP column_name1[, column_name2[, ...]];
 --增加列 > MYSQL,ORACLE
@@ -637,6 +637,21 @@ set serveroutput on 命令
   set autotrace on-;        //设置允许对执行的sql进行分析
   set verify off            //可以关闭和打开提示确认信息old 1和new 1的显示.
 
-
 dbms_output.put_line() > Oracle[存储过程]
   可以输出参数的值
+
+
+comment on table table_name is '[message]';
+  为表添加注释
+
+comment on column table_name.column_name is '[message]';
+  为指定表的指定列添加注释
+
+dbms_lob.substr(column_name)
+  将类型为 CLOB 的列转换为 String
+
+dbms_lob.compare(column_name, [char/CLOB])
+  比较两个 CLOB 类型是否相等, char 类型也可以
+
+dbms_lob.instr(column_name, [char], [起始位置,从1开始] ,[第几次])
+  判断指定字符串是否存在 CLOB 中
