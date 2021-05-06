@@ -1,10 +1,10 @@
 ----------------------------- mysql -----------------------------
 * 建议因管理员方式运行命令提示符,否则会提示"发生系统错误 5","拒绝访问"
 
-* 下载 mysql 至本地
+* 下载 mysql(MySQL Community Downloads) 至本地
    Windows 操作系统中有两种安装 mysql 的方式:
     1.下载 MSI 点击安装
-    2.下载 ZIP 解压即可使用
+    2.下载 ZIP 无需安装解压即可使用
       此方法安装后默认是没有 my.ini 配置文件的,虽然可以通过命令行修改但重启之后就会失效
       解决方法:
         a.在 mysql 根目录下新建 my.ini 将以下代码复制进去并保存
@@ -20,11 +20,20 @@
           其中 basedir 根据实际 mysql 安装位置进行更改
           其中 secure_file_priv 为导出目录
         b.重新生成 data 文件
+          在 bin 目录下创建一个空的 data 文件夹
           执行 mysqld --initialize --console 命令(非首次使用在执行前需确保 data 文件是空的)
           在输出的信息中包含 root 用户的初始密码
-        c.启动服务
+        c.安装服务
+          以 以管理员身份运行 打开控制台并进入 mysql 的 bin 目录下
+          执行 .\mysqld.exe --install
+          * Windows PowerShell 执行某些命令时需要以 .\ 开头以表示信任此命令,而在控制台中则不需要,之后的命令中会交叉出现此两种格式
+        d.启动服务
           服务窗口启动:计算机管理->服务-> mysql ->启动
            cmd 启动:进入 mysql 的 bin 目录下执行 net start mysql
+        e.配置环境变量
+          为了方便不用每次都需要进入 mysql 的 bin 目录下
+          进入 系统属性 的 环境变量,找到 系统变量(S) 中的变量 Path 并点击 编辑(I)... ,点击 新建(N) 将 mysql.exe 的绝对路径(即 bin 目录)复制进去即可
+          之后,你在控制台的任何目录下都可以登录 mysql
 
 Q:如何启动并进入 mysql ?
 A:启动 mysql 服务
@@ -42,7 +51,7 @@ Q:如何解决使用 Navicat 连接 MySQL 出现2059错误?
 A:原因:
      mysql8 之前的版本中加密规则是 mysql_native_password ,而在 mysql8 之后,加密规则是 caching_sha2_password
   解决-更改加密规则:
-     alter user 'root'@'localhost' identtified by 'root' password expire never;  # 更改加密方式
+     alter user 'root'@'localhost' identified by 'root' password expire never;  # 更改加密方式
      alter user 'root'@'localhost' identified with mysql_native_password by 'root';  # 更新用户密码
      flush privileges;  // 刷新权限
     远程连接请将'localhost'换成'%';
