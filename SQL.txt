@@ -655,3 +655,6 @@ dbms_lob.compare(column_name, [char/CLOB])
 
 dbms_lob.instr(column_name, [char], [起始位置,从1开始] ,[第几次])
   判断指定字符串是否存在 CLOB 中
+
+查看指定表的结构
+  select dbms_metadata.get_ddl('TABLE','MARKETINGPLANS') from Dual; > Oracle
