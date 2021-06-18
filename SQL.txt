@@ -38,6 +38,7 @@ SQL 语言分为五大类
        );
     删除索引:
        DROP index [indexName] on table_name;
+       alter table table_name drop constraint indexName; > Oracle
   唯一索引:
     索引列的值必须唯一,但允许有空值,若为组合索引,则列值的索引必须唯一
     创建索引:
@@ -120,7 +121,7 @@ on commit preserve rows
 
 统计重复数据
 SELECT count(*) as repetitions,Course  FROM table_name1 group by Course having repetitions>1; 
-
+SELECT distinct column_name,count(*) from table_name group by column_name having count(*)>10; > Oracle
 过滤重复数据 > Oracle
 SELECT distinct column_name FROM table_name;
 
@@ -601,7 +602,7 @@ CAL_1.before(CLA_2):比较日期(Date)大小,判断 CAL_1 是否比 CLA_2 早,�
 
 **在 PL/SQL 执行如下语句时报错"ORA_00922:选项缺失或无效"
     SET SERVEROUTPUT ON  
-            DECLARE    
+        DECLARE    
             v_ename VARCHAR2(255); 
             v_classtype VARCHAR2(255);  
             CURSOR emp_cursor IS    
@@ -658,3 +659,70 @@ dbms_lob.instr(column_name, [char], [起始位置,从1开始] ,[第几次])
 
 查看指定表的结构
   select dbms_metadata.get_ddl('TABLE','MARKETINGPLANS') from Dual; > Oracle
+
+f'f
+select * from user_cons_columns cl 
+where 1=1
+and cl.column_name = 'PREFERENTIALPOLICIESID' 
+--and cl.table_name='PREFERENTIALPOLICIES'
+and cl.position='1';
+
+**********实例**********
+1.存储过程01
+DECLARE
+   vConfigs VARCHAR2(4000);
+   vFiveSubjectName VARCHAR2(4000);
+   vSubjectName VARCHAR2(4000);
+   vProductOfferings VARCHAR2(4000);
+   vProductOfferingName VARCHAR2(4000);
+   vOperationRoleName VARCHAR2(4000);
+   vSubjectCode VARCHAR2(255);
+   vProductOfferingCode VARCHAR2(255);
+   vSubjectId NUMBER(19);
+   vProductOfferingId NUMBER(19);
+   vNextobjectid NUMBER(19);
+   vRows NUMBER(19);
+   i INTEGER := 1;
+   BEGIN
+   FOR cur IN (select * from configurations c where c.code='InteractionPoFinanceSubject') LOOP
+       FOR res IN ( with a as (select regexp_substr(cur.value, '[^;]+', 1, rownum) AS str1 from dual
+                             connect by rownum <= length(cur.value) - length(replace(cur.value, ':', '')) + 1) 
+                             select * from a) LOOP
+           vFiveSubjectName := regexp_substr(res.str1, '[^:]+', 1);
+           vProductOfferings := regexp_substr(res.str1, '[^:]+', 1, 2);
+           if vFiveSubjectName is not null then
+               select fsc.id,fsc.name into vSubjectId,vSubjectName 
+                   from financesubjectcombinations fsc
+                   join FINANCESUBJECTTYPES fst on fst.id=fsc.fivesubjectid
+                   where fst.name=vFiveSubjectName;
+           end if;
+           if vProductOfferings is not null then 
+               FOR productOfferings IN ( with a as (select regexp_substr(vProductOfferings, '[^,]+', 1, rownum) AS str2 from dual
+                                                  connect by rownum <= length(vProductOfferings) - length(replace(vProductOfferings, ',', '')) + 1) 
+                                                  select * from a) LOOP
+                   BEGIN
+                       select po.id,po.name into vProductOfferingId,vProductOfferingName from Productofferings po 
+                           where po.code = productOfferings.Str2;
+                   END;
+                   vNextobjectid := nextobjectid;
+                   vRows := 0;
+                   BEGIN
+                       select count(*) into vRows from FinanceSubjectCombinationConfs pscc 
+                           where pscc.productofferingid = vProductOfferingId;
+                   END;
+                   dbms_output.put_line('商品id:'||vProductOfferingId);
+                   if vRows = 0 then
+                     i := i+1;
+                     insert into 
+                         FinanceSubjectCombinationConfs(ID, startlifecycle, endlifecycle,code, SERIALNUMBER, financesubjectcombinationid, productofferingid)
+                         values(vNextobjectid, SYSDATE, maxdate, vNextobjectid, 1, vSubjectId, vProductOfferingId);
+                   end if;
+                   if i>500 then
+                       commit;
+                       i := 0;
+                   end if;
+               END LOOP;
+           end if;
+       END LOOP;  
+   END LOOP;
+END;
