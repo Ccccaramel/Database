@@ -726,3 +726,61 @@ DECLARE
        END LOOP;  
    END LOOP;
 END;
+
+2.存储过程02
+DECLARE
+   vFiveSubjectName VARCHAR2(4000);
+   vProductOfferingCodes VARCHAR2(4000);
+   vSubjectCode VARCHAR2(255);
+   vSubjectId NUMBER(19);
+   vProductOfferingId NUMBER(19);
+   vNextobjectid NUMBER(19);
+   vRows NUMBER(19);
+   
+   vConfiguration configurations%ROWTYPE;
+   BEGIN
+     
+     SELECT * INTO vConfiguration from configurations c where c.code='InteractionPoFinanceSubject';
+    
+     FOR res IN ( with a as (select regexp_substr(vConfiguration.value, '[^;]+', 1, rownum) AS str1 from dual
+                           connect by rownum <= length(vConfiguration.value) - length(replace(vConfiguration.Value, ':', '')) + 1) 
+                           select * from a) LOOP
+         vFiveSubjectName := regexp_substr(res.str1, '[^:]+', 1);
+         vProductOfferingCodes := regexp_substr(res.str1, '[^:]+', 1, 2);
+         
+         -- dbms_output.put_line('vFiveSubjectName=' || vFiveSubjectName);
+         -- dbms_output.put_line('vProductOfferingCodes=' || vProductOfferingCodes);
+         
+         
+         if vFiveSubjectName is not null then
+             select fsc.id into vSubjectId
+                 from financesubjectcombinations fsc
+                 join FINANCESUBJECTTYPES fst on fst.id=fsc.fivesubjectid
+                 where fst.name=vFiveSubjectName;
+         end if;
+         
+         if vProductOfferingCodes is not null then 
+             FOR curProductOffering IN ( with a as (select regexp_substr(vProductOfferingCodes, '[^,]+', 1, rownum) AS productOfferingCode from dual
+                                                connect by rownum <= length(vProductOfferingCodes) - length(replace(vProductOfferingCodes, ',', '')) + 1) 
+                                                select * from a) LOOP
+                 select po.id into vProductOfferingId from Productofferings po 
+                 where po.code = curProductOffering.productOfferingCode;
+                 
+                 -- dbms_output.put_line('vFiveSubjectName=' || vFiveSubjectName);
+                 
+                 vNextobjectid := nextobjectid;
+                 vRows := 0;
+                 
+                 select count(*) into vRows from FSCombinationPOConfigs pscc 
+                 where pscc.productofferingid = vProductOfferingId;
+                         
+                 if vRows = 0 then
+                   insert into 
+                       FSCombinationPOConfigs(ID, startlifecycle, endlifecycle,code, SERIALNUMBER, financesubjectcombinationid, productofferingid)
+                       values(vNextobjectid, SYSDATE, maxdate, vNextobjectid, 1, vSubjectId, vProductOfferingId);
+                 end if;
+                
+             END LOOP;
+         end if;
+     END LOOP;  
+END;
