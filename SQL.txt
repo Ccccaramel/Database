@@ -400,7 +400,7 @@ ALTER TABLE table_name id auto_increment=100;  # 从100开始
 
  > Oracle
 SELECT * FROM all_tab_comments       查询所有用户的表,视图等
-SELECT * FROM user_tab_comments      查询本用户的表,视图等
+SELECT * FROM user_tab_comments      查询本用户的表,视图等(查询条件为表名时值需大写)
 SELECT * FROM all_col_comments       查询所有用户的表的列名和注释
 SELECT * FROM user_col_comments      查询本用户的表的列名和注释
 SELECT * FROM all_tab_columns        查询所有用户的表的列名等信息
