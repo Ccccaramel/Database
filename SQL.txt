@@ -328,6 +328,17 @@ select * FROM table_name order by age DESC;  # 降序
 where 条件
 SELECT * FROM table_name where age>=16;
 
+case 条件判断
+SELECT CASE
+         WHEN column_name1 = 1 THEN
+          '成功'
+         WHEN column_name1 = 2 THEN
+          '失败'
+         ELSE
+          '其他'
+       END
+FROM table_name;
+
 like 模糊匹配
 SELECT * FROM table_name where Name like '%m';  # 以 m 结尾
 SELECT * FROM table_name where Name like 'J%';  # 以 J 开头
@@ -784,3 +795,16 @@ DECLARE
          end if;
      END LOOP;  
 END;
+
+统计
+WITH A AS(
+SELECT 'C1' CLASSNAME, 'S1' STU FROM DUAL
+UNION ALL
+SELECT 'C1' CLASSNAME, 'S2' STU FROM DUAL
+UNION ALL
+SELECT 'C2' CLASSNAME, 'S1' STU FROM DUAL
+UNION ALL
+SELECT 'C3' CLASSNAME, 'S1' STU FROM DUAL
+)
+SELECT A.CLASSNAME,COUNT(CLASSNAME) FROM A
+GROUP BY ROLLUP((CLASSNAME ));
