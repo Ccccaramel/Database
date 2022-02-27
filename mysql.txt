@@ -1,3 +1,39 @@
+----------------------------- 基础 -----------------------------
+数值类型
+  类型	      大小      用途
+  tinyint   	1 Bytes  小整数值
+  smallint  	2 Bytes  大整数值
+  mediumint  	3 Bytes  大整数值
+  int/integer	4 Bytes  大整数值
+  bigint	    8 Bytes  极大整数值
+  float     	4 Bytes  单精度浮点数值
+  double    	8 Bytes  双精度浮点数值
+  DECIMAL   	...      小数值
+
+日期和时间类型
+  类型      大小(bytes)   范围                                    格式                用途
+  date      3            1000-01-01/9999-12-31                   YYYY-MM-DD          日期值
+  time      3            '-838:59:59'/'838:59:59'                HH:MM:SS            时间值或持续时间
+  year      1            1901/2155                               YYYY                年份值
+  datetime  8            1000-01-01 00:00:00/9999-12-31 23:59:59 YYYY-MM-DD HH:MM:SS 混合日期和时间值
+  timestamp 4            1970-01-01 00:00:00/2038                YYYYMMDD HHMMSS     混合日期和时间值，时间戳
+                         结束时间是第 2147483647 秒
+                         北京时间 2038-1-19 11:14:07
+                         格林尼治时间 2038年1月19日 凌晨 03:14:07
+
+字符串类型
+  类型       大小(bytes)	用途
+  char       0-255        定长字符串
+  varchar    0-65535      变长字符串
+  tinyblob   0-255        不超过255个字符的二进制字符串
+  tinytext   0-255        短文本字符串
+  blob       0-65535      二进制形式的长文本数据
+  text       0-65535      长文本数据
+  mediumblob 0-16777215   二进制形式的中等长度文本数据
+  mediumtext 0-16777215   中等长度文本数据
+  longblob   0-4294967295 二进制形式的极大文本数据
+  longtext   0-4294967295 极大文本数据
+
 ----------------------------- mysql -----------------------------
 * 建议因管理员方式运行命令提示符,否则会提示"发生系统错误 5","拒绝访问"
 
@@ -64,7 +100,8 @@ A:执行 alter user '[用户名]'@'localhost' identified by '[新密码]';
   启动 mysql 服务               net start mysql 
   终止 mysql 服务               net stop mysql
   退出 mysql                    exit/quit                    
-  列出所有数据库                 show databases;    
+  列出所有数据库                 show databases;
+  创建数据库                     create database 数据库名;
   删除指定数据库                 drop table [数据库名];                                                                  
   选择并进入指定数据库           use [数据库名];                                                           
   列出当前数据库的所有表         show tables;                                                                                                       
@@ -147,14 +184,14 @@ A:执行 show variables like '%secure%'; 发现 secure-file-priv 值为 NULL ,�
   普通索引:
     最基本的索引,无任何限制
     创建索引:
-       create index indexName on mytable(username(length));
+       create index index_name on table_name(column_name);
     添加索引:
-       alter table tableName add index indexName(columnName);
+       alter table table_name add index index_name(column_name);
     创建表时指定:
        create table mytable(
          ID int not null,
-         username varchar(16) not null,
-         index [indexName] (username(length))
+         name varchar(16) not null,
+         index [indexName] (name(length))
        );
     删除索引:
        drop index [indexName] on mytable;
@@ -233,7 +270,7 @@ A:执行 show variables like '%secure%'; 发现 secure-file-priv 值为 NULL ,�
   方法二:
      alter ignore table test add primary key (col1,col2);
 
- mysql 注入
+mysql 注入
   如果你通过网页获取用户输入的数据并将其插入一个 mysql 数据库
   那么就有可能发生 sql 注入问题:通过 sql 命令插入到 web 表单提交或输入域名或页面请求的查询字符串,最终到达欺骗服务器执行恶意的 sql 命令
   我们必须确认用户输入的数据是安全的,必须对用户的数据进行过滤处理
@@ -341,69 +378,41 @@ create table test1(
   grade int,
   primary key (IDCard)
 )engine=INNODB default charset=utf8;
- 
- drop 删除表
-drop table test; 
 
- truncate 关键字
-truncate table test; 
 
- insert 插入
-insert into test(Name,age) values ("Tom",12);
-insert into test(Name,age) values ("Marry",22);
-insert into test(Name,age) values ("Jim",15);
-insert into test(Name,age) values ("Kara",32);
-insert into test(Name,age) values ("Apple",14);
-insert into test(Name,age) values ("Jeck",16);
-insert into test(Name,age) values ("Sock",21);
-insert into test(Name,age) values ("Jarry",22);
-insert into test(Name,age) values ("Jom",18);
-insert into test(Name,age) values ("Mara",22);
-insert into test(Name,age) values ("Opple",14);
-insert into test(Name,age) values ("Jack",17);
-insert into test(Name,age) values ("Seck",25);
+delete 删除数据
+  DML 语句,可回滚
+  删除所有行,可作用于表和视图
+    delete from test where IDCard=4;
 
-insert into test1(IDCard,Course,grade) values (1,"PHP",98);
-insert into test1(IDCard,Course,grade) values (1,"Java",76);
-insert into test1(IDCard,Course,grade) values (1,"HTML",94);
-insert into test1(IDCard,Course,grade) values (2,"PHP",73);
-insert into test1(IDCard,Course,grade) values (2,"Java",98);
-insert into test1(IDCard,Course,grade) values (2,"HTML",86);
-insert into test1(IDCard,Course,grade) values (3,"PHP",72);
-insert into test1(IDCard,Course,grade) values (3,"C",75);
-insert into test1(IDCard,Course,grade) values (3,"HTML",74);
-insert into test1(IDCard,Course,grade) values (4,"PHP",71);
-insert into test1(IDCard,Course,grade) values (4,"Java",96);
-insert into test1(IDCard,Course,grade) values (4,"HTML",94);
-insert into test1(IDCard,Course,grade) values (5,"PHP",76);
-insert into test1(IDCard,Course,grade) values (5,"Java",70);
-insert into test1(IDCard,Course,grade) values (6,"PHP",85);
-insert into test1(IDCard,Course,grade) values (6,"HTML",83);
-insert into test1(IDCard,Course,grade) values (7,"PHP",88);
-insert into test1(IDCard,Course,grade) values (7,"Java",93);
-insert into test1(IDCard,Course,grade) values (8,"PHP",79);
-insert into test1(IDCard,Course,grade) values (8,"C",78);
-insert into test1(IDCard,Course,grade) values (8,"Java",93);
-insert into test1(IDCard,Course,grade) values (8,"HTML",85);
-insert into test1(IDCard,Course,grade) values (9,"PHP",73);
-insert into test1(IDCard,Course,grade) values (9,"C",84);
+drop 删除表
+  DDL 语句,执行后无法回滚
+  可作用于表和视图
+  删除所有行,包括约束,索引,表结构
+    drop table [表名]; 
+
+truncate 关键字
+  DDL 语句,仅删除所有行,表结构,约束,索引依旧存在,会重置表的自增值
+  只能作用于表,不会激活与表有关的删除触发器,执行速度快且无法回滚
+    truncate table [表名]; 
+
+insert 插入
+ insert into tableName([列名1],[列名2],...) valuse([值1],[值2],...);
 
 insert ignore into 插入
 #如果插入数据库已存在的数据就会跳过这条语句,若没有就插入
 insert ignore into test1(IDCard,Course,grade) values (9,"C",84);
 
-delete 删除数据
-delete from test where IDCard=4;
-
- binary 关键字
+binary 关键字
 select * from test where binary name='tom';  # 区分大小写
 
- update 更新
+update 更新
 update test set age=100 where IDCard=2;
 update test set age=age+1;  # 所有人 age 属性值+1
 
- replace 替换
-update test set age=replace(age,100,23) where IDCard>=1;
+replace 替换
+  将[列名]字段为数据为[参数1]的全部替换为[参数2]
+  update [表名] set [列名]=replace([列名],[参数1],[参数2]);
 
  union 操作符
 # select name1,name2,name3,...
@@ -418,35 +427,42 @@ update test set age=replace(age,100,23) where IDCard>=1;
   all 参数显示全部数据,即重复的数据也会显示
   distinct 为可选参数,删除结果中重复的数据,若不加参数默认情况下同为此效果
 
- group by 分组
-select age,count(*) from test group by age;  # 各个年龄的人数
-select coalesce(name,"总数"),sum(age) as count from test group by name with rollup;  # 年龄和
+group by
+  语句根据一个或多个列对结果集进行分组
+  分组的列上我们可以使用 COUNT SUM AVG 等函数
+    select age,count(*) from test group by age;  # 各个年龄的人数
 
- inner join 内连接
+with rollup
+  在group分组字段的基础上再进行统计数据
+    select age,sum(age) from student group by id with rollup;
+    select coalesce(name,"总数"),sum(age) as count from test group by name with rollup;  # 年龄和
+
+inner join 内连接
 select t1.IDCard,t2.Course,t2.grade from test t1 inner join test1 t2 on t1.IDCard=t2.IDCard;  # 交集
 
- left join 左连接
+left join 左连接
 select t1.IDCard,t2.Course,t2.grade from test t1 left join test1 t2 on t1.IDCard=t2.IDCard;  # t1
 
- right join 右连接
+right join 右连接
 select t1.IDCard,t2.Course,t2.grade from test t1 right join test1 t2 on t1.IDCard=t2.IDCard;  # t2(删掉 t1 中一条数据)
 
- order by 子句
-# select name1,name2,... from table_name order by name [ASC|DESC];
-# ASC 升序
+order by
+  数据排序
+  ASC 升序
   DESC 降序
+    select name1,name2,... from table_name order by name [ASC|DESC];
 
- where 子句
-select * from test where age>=16;
+where
+  select * from test where age>=16;
 
- like 子句
-select * from test where Name like '%m';  # 以 m 结尾
-select * from test where Name like 'J%';  # 以 J 开头
-select * from test where Name like '_i_';  # 三位且中间为 i 
-(更多见正则表达式)
+like
+  select * from test where Name like '%m';  # 以 m 结尾
+  select * from test where Name like 'J%';  # 以 J 开头
+  select * from test where Name like '_i_';  # 三位且中间为 i 
+  (更多见正则表达式)
 
- NULL 处理
-select *,age+ifnull(SubmissionDate,100) from test;  // 若值为 NULL 则用指定值代替
+NULL 处理
+  select *,age+ifnull(SubmissionDate,100) from test;  // 若值为 NULL 则用指定值代替
 
 正则表达式
  mysql 既可以通过 like...% 来进行模糊匹配,同样也支持正则表达式匹配
@@ -613,3 +629,47 @@ A:执行 show variables like '%secure%'; 发现 secure-file-priv 值为 NULL ,�
   2.直接用 set 来改变 mysql 的自动提交模式
     a. set autocommit=0禁止自动提交
     b. set autocommit=1 开启自动提交
+
+uuid()
+  可用来生成时间和空间上都独一无二的值
+  固定字符为36个字符
+
+---样例---
+insert into test(Name,age) values ("Tom",12);
+insert into test(Name,age) values ("Marry",22);
+insert into test(Name,age) values ("Jim",15);
+insert into test(Name,age) values ("Kara",32);
+insert into test(Name,age) values ("Apple",14);
+insert into test(Name,age) values ("Jeck",16);
+insert into test(Name,age) values ("Sock",21);
+insert into test(Name,age) values ("Jarry",22);
+insert into test(Name,age) values ("Jom",18);
+insert into test(Name,age) values ("Mara",22);
+insert into test(Name,age) values ("Opple",14);
+insert into test(Name,age) values ("Jack",17);
+insert into test(Name,age) values ("Seck",25);
+
+insert into test1(IDCard,Course,grade) values (1,"PHP",98);
+insert into test1(IDCard,Course,grade) values (1,"Java",76);
+insert into test1(IDCard,Course,grade) values (1,"HTML",94);
+insert into test1(IDCard,Course,grade) values (2,"PHP",73);
+insert into test1(IDCard,Course,grade) values (2,"Java",98);
+insert into test1(IDCard,Course,grade) values (2,"HTML",86);
+insert into test1(IDCard,Course,grade) values (3,"PHP",72);
+insert into test1(IDCard,Course,grade) values (3,"C",75);
+insert into test1(IDCard,Course,grade) values (3,"HTML",74);
+insert into test1(IDCard,Course,grade) values (4,"PHP",71);
+insert into test1(IDCard,Course,grade) values (4,"Java",96);
+insert into test1(IDCard,Course,grade) values (4,"HTML",94);
+insert into test1(IDCard,Course,grade) values (5,"PHP",76);
+insert into test1(IDCard,Course,grade) values (5,"Java",70);
+insert into test1(IDCard,Course,grade) values (6,"PHP",85);
+insert into test1(IDCard,Course,grade) values (6,"HTML",83);
+insert into test1(IDCard,Course,grade) values (7,"PHP",88);
+insert into test1(IDCard,Course,grade) values (7,"Java",93);
+insert into test1(IDCard,Course,grade) values (8,"PHP",79);
+insert into test1(IDCard,Course,grade) values (8,"C",78);
+insert into test1(IDCard,Course,grade) values (8,"Java",93);
+insert into test1(IDCard,Course,grade) values (8,"HTML",85);
+insert into test1(IDCard,Course,grade) values (9,"PHP",73);
+insert into test1(IDCard,Course,grade) values (9,"C",84);

@@ -17,7 +17,6 @@ SQL 语言分为五大类
   使用INNER JOIN 进行查询
      SELECT a.* FROM A_table_name a inner join (SELECT b.name FROM B_table_name b group by b.name) c on a.name=c.name
 
-
 索引
   索引的建立对于 slq 的高效运行是很重要的,索引可大大提高 sql 的检索速度,但也会降低更新表的速度,占用磁盘空间的索引文件
   索引分单列索引和组合索引
@@ -97,9 +96,7 @@ on commit delete rows
   事务完成,临时表中的数据就会消失
 on commit preserve rows
   会话结束,临时表中的数据就会消失
-注意：创建了临时表之后,对于临时表的定义是永久的存放在数
-
-据库中的
+注意：创建了临时表之后,对于临时表的定义是永久的存放在数据库中的
 
 复制表
   完全复制数据表,包括表的结构,索引,默认值等,仅仅使用 CREATE table ... SELECT 命令是无法实现的
