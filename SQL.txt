@@ -17,6 +17,17 @@ SQL 语言分为五大类
   使用INNER JOIN 进行查询
      SELECT a.* FROM A_table_name a inner join (SELECT b.name FROM B_table_name b group by b.name) c on a.name=c.name
 
+转义字符:`
+  使用样例:
+    CREATE TABLE `jy` (
+      `借书证号` char(8) NOT NULL COMMENT '借书证号',
+      `ISBN` char(16) NOT NULL COMMENT 'ISBN',
+      `索书号` char(10) NOT NULL COMMENT '索书号',
+      `借书时间` datetime NOT NULL COMMENT '借书时间',
+      PRIMARY KEY (`借书证号`,`ISBN`)
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+  用于避免和 mysql 的关键字冲突,只要表名或列名不使用关键字就不需要转义
+
 索引
   索引的建立对于 slq 的高效运行是很重要的,索引可大大提高 sql 的检索速度,但也会降低更新表的速度,占用磁盘空间的索引文件
   索引分单列索引和组合索引

@@ -188,38 +188,38 @@ A:执行 show variables like '%secure%'; 发现 secure-file-priv 值为 NULL ,�
     添加索引:
        alter table table_name add index index_name(column_name);
     创建表时指定:
-       create table mytable(
+       create table table_name(
          ID int not null,
          name varchar(16) not null,
          index [indexName] (name(length))
        );
     删除索引:
-       drop index [indexName] on mytable;
+       drop index [indexName] on table_name;
   唯一索引:
     索引列的值必须唯一,但允许有空值,若为组合索引,则列值的索引必须唯一
     创建索引:
-       create unique index indexName on mytable(username(length))
+       create unique index indexName on table_name(username(length))
     修改索引:
-       alter table mytable add unique [indexName] (username(length))
+       alter table table_name add unique [indexName] (username(length))
     创建时指定:
-       create table mytable(
+       create table table_name(
          ID int not null,
          username varchar(16) not null,
          unique [indexName] (username(length))
        );
     使用 alter 命令添加和删除索引
       1.添加一个主键 
-         alter table mytable add primary key(column_list);
+         alter table table_name add primary key(column_list);
       2.创建索引的值必须是唯一的
-         alter table mytable add unique indexName(column_list);
+         alter table table_name add unique indexName(column_list);
       3.添加普通索引,索引值会出现多次
-         alter table mytable add indexName(column_list);
+         alter table table_name add indexName(column_list);
       4.指定索引为 fulltext ,用于全文索引 
-         alter table mytable add fulltext indexName(column_list);
+         alter table table_name add fulltext indexName(column_list);
       添加索引:
-         alter table mytable add index(c);
+         alter table table_name add index(c);
       删除索引:
-         alter table mytable drop index c;
+         alter table table_name drop index c;
     使用 alter 命令添加和删除主键
       添加主键索引:
          alter table test modify id int not null;
