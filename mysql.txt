@@ -257,7 +257,8 @@ A:执行 show variables like '%secure%'; 发现 secure-file-priv 值为 NULL ,�
    show variables         服务器配置变量
 
 统计重复数据
-   select count(*) as repetitions,Course  from test1 group by Course having repetitions>1; 
+  功能类似于 where 但 where 关键字无法与聚合函数一起使用
+   select count(*) as repetitions,Course from test1 group by Course having repetitions>1;
 
 过滤重复数据
    select distinct Course from test1;
