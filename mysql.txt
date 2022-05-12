@@ -38,7 +38,7 @@
 * 建议因管理员方式运行命令提示符,否则会提示"发生系统错误 5","拒绝访问"
 
 * 下载 mysql(MySQL Community Downloads) 至本地
-   Windows 操作系统中有两种安装 mysql 的方式:
+  Windows 操作系统中有两种安装 mysql 的方式:
     1.下载 MSI 点击安装
     2.下载 ZIP 无需安装解压即可使用
       此方法安装后默认是没有 my.ini 配置文件的,虽然可以通过命令行修改但重启之后就会失效
@@ -70,6 +70,28 @@
           为了方便不用每次都需要进入 mysql 的 bin 目录下
           进入 系统属性 的 环境变量,找到 系统变量(S) 中的变量 Path 并点击 编辑(I)... ,点击 新建(N) 将 mysql.exe 的绝对路径(即 bin 目录)复制进去即可
           之后,你在控制台的任何目录下都可以登录 mysql
+  Linux
+    1.启动服务的两种方式
+      service mysqld start
+      systemctl mysqld start
+    2.终止服务
+      service mysqld stop
+    3.重启服务
+      service mysqld restart
+    4.查看服务状态
+      systemctl status mysqld
+    5.重置密码
+      找到 /etc/mycof
+      在 [mysqld] 下行添加如下语句
+        skip-grant-tables
+      保存退出后重启 mysql 服务
+      直接登录
+        mysql -u root -p
+      无密码可直接进入
+      更改密码并刷新
+        flush privileges;
+        alter user '[用户名]'@'localhost' identified by '[新密码]';
+        flush privileges;
 
 Q:如何启动并进入 mysql ?
 A:启动 mysql 服务
@@ -415,7 +437,7 @@ replace 替换
   将[列名]字段为数据为[参数1]的全部替换为[参数2]
   update [表名] set [列名]=replace([列名],[参数1],[参数2]);
 
- union 操作符
+union 操作符
 # select name1,name2,name3,...
   from table_name1 [where conditions]
   union [all|distinct]
