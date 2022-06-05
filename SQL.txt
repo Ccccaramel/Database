@@ -660,12 +660,18 @@ set serveroutput on 命令
 dbms_output.put_line() > Oracle[存储过程]
   可以输出参数的值
 
-
-comment on table table_name is '[message]';
+注释/说明/含义
   为表添加注释
-
-comment on column table_name.column_name is '[message]';
+    comment on table table_name is '[message]';
   为指定表的指定列添加注释
+    comment on column table_name.column_name is '[message]';
+  创建表时添加
+    create table student(
+      sno int comment '学号',
+    )comment='学生';
+  修改注释
+    alter table student modify sno int comment '学生编号';
+  
 
 dbms_lob.substr(column_name)
   将类型为 CLOB 的列转换为 String
