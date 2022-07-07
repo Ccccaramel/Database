@@ -375,6 +375,16 @@ SELECT Name FROM table_name where Name regexp '^J';
 SELECT Name FROM table_name where Name regexp 'k$';
 SELECT Name FROM table_name where Name regexp 'ar';
 
+create
+-- 创建时添加主键以及自增,外键,设置插入数据时使用当前时间
+create TABLE member(
+  id int auto_increment,
+  status int COMMENT "状态",
+  createDate timestamp DEFAULT CURRENT_TIMESTAMP COMMENT "数据创建时间",
+  PRIMARY KEY (id),
+  FOREIGN KEY (status) REFERENCES dictionary(id)
+)COMMENT "成员";
+
 ALTER 命令
 --删除列 > MYSQL,ORACLE(表示 MYSQL 与 ORACLE 的语法是一样的)
 ALTER TABLE table_name DROP column column_name;

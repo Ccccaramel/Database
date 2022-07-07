@@ -93,6 +93,23 @@
         alter user '[用户名]'@'localhost' identified by '[新密码]';
         flush privileges;
 
+Q:重置密码报错?
+    alter user '[用户名]'@'localhost' identified by '[新密码]';
+    ERROR 1396 (HY000): Operation ALTER USER failed for 'root'@'localhost'
+A:可试一试将 localhost 改为 %
+    use mysql;
+    select Host,user from user;
+      +-----------+------------------+
+      | Host      | user             |
+      +-----------+------------------+
+      | %         | root             |
+      | localhost | mysql.infoschema |
+      | localhost | mysql.session    |
+      | localhost | mysql.sys        |
+      +-----------+------------------+
+    
+
+
 Q:如何启动并进入 mysql ?
 A:启动 mysql 服务
     服务窗口启动:计算机管理->服务-> mysql ->启动
