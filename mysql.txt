@@ -251,6 +251,7 @@ A:执行 show variables like '%secure%'; 发现 secure-file-priv 值为 NULL ,�
     显示索引信息:
        show index from test;
 
+
  mysql 临时表
   临时表只在连接时可见,关闭连接时自动删除表并释放所有空间
   创建临时表:
@@ -518,6 +519,9 @@ alter talbe test alter heigh drop default;  # 将 heigh 列的默认值删除
 alter talbe test engine=myisam;  # 将 test 表的类型更改为 myisam
 alter talbe test rename to test2;  # 修改表名
 alter table test drop foreign key CourseId;  # 删除外键
+ALTER TABLE [table_name]
+  MODIFY COLUMN [column_name] timestamp NULL 
+  DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '[备注信息]';  # 为指定字段设置默认时间
 
  auto_increment 自增序列
 create table test(
@@ -652,6 +656,16 @@ A:执行 show variables like '%secure%'; 发现 secure-file-priv 值为 NULL ,�
   2.直接用 set 来改变 mysql 的自动提交模式
     a. set autocommit=0禁止自动提交
     b. set autocommit=1 开启自动提交
+
+时间
+  DATETIME       YYYY-MM-DD HH:MM:SS
+  DATE           YYYY-MM-DD
+  TIMESTAMP      YYYYMMDDHHSSMM
+  TIME           HH:MM:SS
+  YEAR           YYYY
+  DATETIME 值的范围从 1000-01-01 00:00:00 到 9999-12-31 23:59:59,它使用 5 个字节进行存储
+  样例:
+    INSERT INTO vatsa(Dt) VALUES('2020-09-14 23:18:17'); 
 
 uuid()
   可用来生成时间和空间上都独一无二的值

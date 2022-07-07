@@ -1,0 +1,22 @@
+Q:报错
+  The content of element type "resultMap" must match "(constructor?,id*,result*,association*,collection*,discriminator?)".
+A:造成的原因是<resultMap>标签中需要按照
+    <id>
+    <result>
+    <association>
+    <collection>
+  顺序来排列
+
+当列的个数很多时
+  <mapper>
+    <sql id="allColumns">
+        id, shop_id, product_id, product_name, category_id, category_name, create_date, is_del
+    </sql>
+    <select id="***" resultMap="***">
+      SELECT
+        <include refid="allColumns"></include>
+        FROM table_name ...
+    </select>
+  </mapper>
+
+
