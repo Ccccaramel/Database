@@ -289,6 +289,12 @@ A:执行 show variables like '%secure%'; 发现 secure-file-priv 值为 NULL ,�
     1. create table clone like test;
     2. insert into clone select * from test;
 
+只复制表结构到新表
+  create table new_table_name select * from old_table_name;
+  create table new_table_name like old_table_name;
+复制表结构及数据到新表
+  create table new_table_name select * from old_table_name; 
+
 获取服务器元数据
    select version()       服务器版本信息
    select database()      当前数据库名(或者返回空)
@@ -527,7 +533,7 @@ select Name from test where Name regexp 'ar';
 alter 命令
 # 当需要修改数据表名或修改数据表字段时
 alter table test drop SubmissionDate Data;  # 删除 SubmissionDate 列
-alter talbe test add heigh int;  # 增加一个名为 heigh 列且类型为 int
+alter talbe test add heigh int;  # 增加一个名为 heigh 列且类型为 int / 增加字段
 alter talbe test modify heigh weight bigint;  # 将 heigh 列更名为 weight ,类型更改为 bigint , modify 也可使用 change
 alter talbe test modify heigh heigh bigint;  # 将 heigh 列的类型更改为 bigint
 alter talbe test change heigh int not null default 100;  # 将 heigh 列的属性更改为 not null 且默认值为100
@@ -688,6 +694,57 @@ uuid()
   可用来生成时间和空间上都独一无二的值
   固定字符为36个字符
 
+数据库重命名
+  建议拷贝或删掉重新建
+
+时间类型选择
+  数据库用 DATETIME
+  java 用 LocalDateTime
+
+查看所有存储过程
+  show procedure status;
+
+DROP procedure pro1; -- 删除游标
+CREATE PROCEDURE pro1() -- 创建游标
+BEGIN
+	DECLARE done int DEFAULT false; -- 判断循环是否结束
+	DECLARE res int DEFAULT 0; -- 结果
+	DECLARE v_id int DEFAULT 0;
+	DECLARE flag int DEFAULT 0; -- 计数
+	DECLARE v_category_id int DEFAULT 0;
+	DECLARE d_name VARCHAR(100) DEFAULT '';
+	
+	DECLARE v_dexun_product_id VARCHAR(80) DEFAULT '';
+	DECLARE v_name VARCHAR(255) DEFAULT '';
+	DECLARE v_img_url VARCHAR(255) DEFAULT '';
+	DECLARE v_category_name VARCHAR(20) DEFAULT '';
+	DECLARE v_price decimal(11,2) DEFAULT 0;
+	DECLARE v_cost_price decimal(11,2) DEFAULT 0;
+	DECLARE v_price1 decimal(11,2) DEFAULT 0;
+	DECLARE v_specifications VARCHAR(200) DEFAULT '';
+	DECLARE v_remarks VARCHAR(500) DEFAULT '';
+	DECLARE v_non_shipping_region VARCHAR(4000) DEFAULT '';
+	
+	DECLARE rss CURSOR FOR SELECT dexun_product_id,name,img_url,category_name,price,cost_price,price1,specifications,remarks,non_shipping_region from temp_dexun_product;
+-- 	DECLARE rss CURSOR FOR SELECT id from temp_dexun_product;
+	DECLARE CONTINUE HANDLER FOR NOT FOUND SET done=true; -- 指定游标循环结束时的返回值
+	OPEN rss; -- 打开游标
+	read_loop:Loop
+  FETCH rss into v_dexun_product_id,v_name,v_img_url,v_category_name,v_price,v_cost_price,v_price1,v_specifications,v_remarks,v_non_shipping_region;
+--     FETCH rss into v_id;
+	IF done then -- 判断是否结束
+	  LEAVE read_loop;
+	end if;
+	set flag = flag+1;
+	SELECT tcb.category_id into v_category_id from t_category_base tcb where tcb.`name`=v_category_name; -- 获取 类型id
+	INSERT INTO t_product_copy(name,img_url,category_id,price,cost_price,price1,specifications,remark,shop_id) 
+	  VALUES(v_name,v_img_url,v_category_id,v_price,v_cost_price,v_price1,v_specifications,v_remarks,12);
+  END LOOP;
+	SELECT flag;
+	CLOSE rss;
+END;
+
+call pro1();
 ---样例---
 insert into test(Name,age) values ("Tom",12);
 insert into test(Name,age) values ("Marry",22);

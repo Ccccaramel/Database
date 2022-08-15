@@ -1,0 +1,4 @@
+下载 redis
+在 bin 目录下 新建一个 start.bat 并将如下命令添入
+  redis-server.exe redis.windows.conf
+这样以后直接 start.bat 即可方便运行

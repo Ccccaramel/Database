@@ -19,4 +19,23 @@ A:造成的原因是<resultMap>标签中需要按照
     </select>
   </mapper>
 
+时间类型的字段
+ 	@JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", locale = "zh", timezone = "GMT+8")
+	private LocalDateTime endTime;
 
+
+实体类中某字段表中不存在
+	@TableField(exist = false)
+	@ApiModelProperty(value = "子节点")
+	private List<CategoryBase> categoryBaseTree;
+
+Q:获取 insert 插入的数据的自增 id
+A:业务层
+    Course course=new Course(data.get("courseName"),data.get(data.get("courseImg-hidden")),Integer.parseInt((String) data.get("courseType")),teacherId);
+    courseService.addCourse(course);  //课程基本信息
+    courseId=course.getCourseId();
+  XML( useGeneratedKeys="true" keyProperty="courseId" )
+    <insert id="addCourse" parameterType="com.muke.onlineedu.admin.entity.Course" useGeneratedKeys="true" keyProperty="courseId">
+        insert into course(courseName,courseImgName,courseClass,teacherId)
+        VALUES(#{course.courseName},#{course.courseImgName},#{course.courseClass},#{course.teacherId});
+    </insert>
