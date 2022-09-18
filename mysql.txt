@@ -558,6 +558,25 @@ alter table test id auto_increment=100;  # 从100开始
    alter table test drop id;
    alter table test add id int unsigned not null auto_increment first,add primary key (id);
 
+cash when
+  SELECT 
+  CASE WHEN STATUS='1' THEN '状态1'
+  WHEN STATUS='2' THEN '状态2'
+  WHEN STATUS='3' THEN '状态3'
+  WHEN STATUS='0' THEN '状态4'
+  ELSE '状态5' END AS '状态' 
+  FROM table;
+
+find_in_set(str1,str2)
+  用于返回str2中str1所在的位置索引
+  如果找到了则返回true(1),否则返回false(0),其中str2必须以半角符号的逗号 , 分割开
+  select find_in_set("44",'11,2,44');
+
+locate(substr,str)
+  用于返回 str 中 substr 所在的位置索引
+  如果找到了则返回一个大于 0 的数,否则返回 0
+  select * from user where locate('yanggb', hobby ) > 0;
+
 * 建议因管理员方式运行命令提示符
 
 * 下载 mysql 至本地
@@ -745,6 +764,19 @@ BEGIN
 END;
 
 call pro1();
+
+关于大小写
+  查看是否区分大小写.根据 value 值判断,0代表区分,1代表不区分
+    show VARIABLES like '%table_names';
+  mysql 对 varchar 类型数据默认不区分大小写,但如果以 _bin 编码的话会使 mysql 对其区分大小写
+    utf8_general_ci 不区分大小写
+    utf8_bin 区分大小写
+  Linux 下的 mysql 默认是要区分表名大小写,但在 windows 下不区分
+    让 mysql 不区分表名大小写的方法
+      用 root 登录,修改 etc/my.cnf ,在 [mysqld] 下加入一行
+        lower_case_table_names=1
+      重启数据库即可
+
 ---样例---
 insert into test(Name,age) values ("Tom",12);
 insert into test(Name,age) values ("Marry",22);
