@@ -532,19 +532,20 @@ select Name from test where Name regexp 'ar';
 
 alter 命令
 # 当需要修改数据表名或修改数据表字段时
-alter table test drop SubmissionDate Data;  # 删除 SubmissionDate 列
-alter talbe test add heigh int;  # 增加一个名为 heigh 列且类型为 int / 增加字段
-alter talbe test modify heigh weight bigint;  # 将 heigh 列更名为 weight ,类型更改为 bigint , modify 也可使用 change
-alter talbe test modify heigh heigh bigint;  # 将 heigh 列的类型更改为 bigint
-alter talbe test change heigh int not null default 100;  # 将 heigh 列的属性更改为 not null 且默认值为100
-alter talbe test alter heigh set default 100;  # 将 heigh 列的默认值改为100
-alter talbe test alter heigh drop default;  # 将 heigh 列的默认值删除
-alter talbe test engine=myisam;  # 将 test 表的类型更改为 myisam
-alter talbe test rename to test2;  # 修改表名
-alter table test drop foreign key CourseId;  # 删除外键
+alter table [table_name] drop column SubmissionDate;  # 删除 SubmissionDate 列
+alter talbe [table_name] add heigh int;  # 增加一个名为 heigh 列且类型为 int / 增加字段
+alter talbe [table_name] modify heigh weight bigint;  # 将 heigh 列更名为 weight ,类型更改为 bigint , modify 也可使用 change
+alter talbe [table_name] modify heigh heigh bigint;  # 将 heigh 列的类型更改为 bigint
+alter talbe [table_name] change heigh int not null default 100;  # 将 heigh 列的属性更改为 not null 且默认值为100
+alter talbe [table_name] alter heigh set default 100;  # 将 heigh 列的默认值改为100
+alter talbe [table_name] alter heigh drop default;  # 将 heigh 列的默认值删除
+alter talbe [table_name] engine=myisam;  # 将 test 表的类型更改为 myisam
+alter talbe [table_name] rename to [new_table_name];  # 修改表名
+alter table [table_name] drop foreign key CourseId;  # 删除外键
 ALTER TABLE [table_name]
   MODIFY COLUMN [column_name] timestamp NULL 
   DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '[备注信息]';  # 为指定字段设置默认时间
+alter table [table_name] auto_increment=34; # 修改自增起始值
 
  auto_increment 自增序列
 create table test(
