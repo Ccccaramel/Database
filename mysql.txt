@@ -494,10 +494,10 @@ right join 右连接
 select t1.IDCard,t2.Course,t2.grade from test t1 right join test1 t2 on t1.IDCard=t2.IDCard;  # t2(删掉 t1 中一条数据)
 
 order by
-  数据排序
-  ASC 升序
-  DESC 降序
+  数据排序(ASC 升序,DESC 降序)
     select name1,name2,... from table_name order by name [ASC|DESC];
+  多个字段排序
+  select * from [table_name] order by [column_name_1 desc],[column_name_2] [ASC|DESC];
 
 where
   select * from test where age>=16;
