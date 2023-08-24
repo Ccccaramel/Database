@@ -37,6 +37,8 @@
 ----------------------------- mysql -----------------------------
 * 建议因管理员方式运行命令提示符,否则会提示"发生系统错误 5","拒绝访问"
 
+* 以 MySQL8 为例
+
 * 下载 mysql(MySQL Community Downloads) 至本地
   Windows 操作系统中有两种安装 mysql 的方式:
     1.下载 MSI 点击安装
@@ -230,7 +232,7 @@ A:执行 show variables like '%secure%'; 发现 secure-file-priv 值为 NULL ,�
        create table table_name(
          ID int not null,
          name varchar(16) not null,
-         index [indexName] (name(length))
+         index [indexName] (column_name(length))
        );
     删除索引:
        drop index [indexName] on table_name;
@@ -691,7 +693,7 @@ A:执行 show variables like '%secure%'; 发现 secure-file-priv 值为 NULL ,�
   7. set transaction 用来设置事务的隔离级别
      innodb 存储引擎提供事务的隔离级别有 read uncommitted , read committed , repeatable read 和 serializable
 
- mysql 事务处理的主要两种方法  
+ mysql 事务处理的主要两种方法
   1.用 begin , rollback , commit 来实现
     a. begin 开始一个事务
     b. rollback 事务回滚
@@ -777,6 +779,228 @@ call pro1();
       用 root 登录,修改 etc/my.cnf ,在 [mysqld] 下加入一行
         lower_case_table_names=1
       重启数据库即可
+
+字符集
+  为兼容各国的文字而做的编码,比如GB2312,GBK等
+  MySQL 里 utf8 实际是用3个字节存储,即对应 utf8mb3
+  而真正意义上的 utf8 对应的是4个字节,即 utf8mb4
+  在 Navicat 等工具创建数据库时 字符集 项建议选择 utf8mb4
+  utf8mb4 比 utf8mb3 支持范围和类型更多
+
+排序规则
+  后缀含义
+    ci      case insensitive 不区分大小写
+    _ai_ci  accent insensitive 不区分音调(例如"鹅"和"饿"的拼音视为"等价"相同), case insensitive 不区分大小写
+    cs      case sensitive collation 区分大小写
+    bin     binary case sensitive 区分大小写
+  MySQL8 默认的字符检索策略是 utf8mb4_0900_ai_ci ,其中 0900 为版本代号,即9.0版本,发布于2016年6月
+  utf8mb4_bin
+    将数据二进制编译存储,区分大小写,
+  utf8mb4_general_ci
+    没有实现 Unicode 排序规则
+  utf8mb4_unicode_ci
+    基于标准的 Unicode 排序和比较,能够在各语言间精确排序,实现了稍微复杂的排序算法
+  如何选择
+    utf8mb4 常用的的字符排序规则
+      utf8mb4_general_ci
+        更快,在比较和排序的时候更快
+      utf8mb4_unicode_ci
+        更准确,在比较和排序的时能够处理特殊字符,实现了稍微复杂的排序算法
+    推荐 utf8mb4_unicode_ci
+  *上述总结来自某篇博客,除了技术相关的问题解答,还以此延伸谈论了排序
+   列举了一个按订单排序规则的问题,他说部分人通常会为订单添加一个数字类型的状态字段,依据此字段大小进行排序
+   但当调整或插入新的状态时就会出现小麻烦,这也是我没有考虑到的,在一些特殊情况下可以考虑自定义动态排序规则
+
+Q:关于外键的使用
+A:很多文章说不推荐使用外键
+  甚至引用阿里的JAVA规范
+    【强制】不得使用外键与级联,一切外键概念必须在应用层解决
+  也有人说
+    只有一个场景不能使用外键,就是分库分表
+  还强调了
+    数据库的性能瓶颈在磁盘
+  ...
+  我目前的观点是:用,除非公司之类的要求
+  之所以表态,是因为我有自己的小项目,必须得站一边
+  目的只有一个,使表之间建立关系,使表结构一目了然,方便分析
+
+聚簇索引
+  其特点是叶子节点包含了完整的记录行,而非聚簇索引的叶子节点只有索引字段和主键ID
+  MySQL 索引采用 B+Tree
+  InnoDB 和 MyISAM 作为 MySQL 中 B+Tree 索引的两种重要体现形式
+  InnoDB 推荐以主键作为索引来组织数据进行存储,它认为主键是一个非常重要的属性
+  InnoDB 表数据文件本身就是按 B+Tree 组织的一个索引结构,聚簇索引就是按照每张表的主键来构造一个 B+ 树,叶子节点中存放的就是整张表的数据
+  所以解释了以 InnoDB 作为存储引擎时主键的必要性
+  MySQL 中除主键索引外都是非聚簇索引(辅助索引),主键索引也可称为聚簇索引
+  非聚簇索引就是为了寻找主键索引的二级索引,从通过主键索引而找到数据
+
+Q:查看 MySQL 支持的存储引擎?
+A:执行
+    show engines;
+
+Q:MySQL 数据存储位置?
+A:执行
+    show variables like 'datadir';
+  进入对应目录可看到以数据库中的数据库命名的文件夹
+  进入文件夹,可以看到相关的数据文件,依据索引引擎的不同会有些差异
+  
+
+存储引擎
+  MySQL 中每一个表都可以指定选择存储引擎,可以根据不同的需求选择不同的存储引擎
+  可使用 show engines 命令查看 MySQL 支持的存储引擎
+  常用的存储引擎有
+    InnoDB
+      MySQL 的默认存储引擎
+      特点
+        1.支持事务操作
+          每条 SQL 都默认封装成事务,自动提交,会影响速度
+          所以最好把多条 SQL 语句放在 begin-commit 中组成一个事务
+        2.支持外键
+        3.聚合索引/聚簇索引
+          使用 B+tree 作为索引结构,数据文件和主键索引绑定在一起
+        4.不保存表的总条数
+        5.支持全文索引(5.7之后)
+        6.支持表级锁,行级锁(默认)
+          行锁是实现在索引上,而不是物理行上
+          如果未命中索引,无法使用行锁,将会退化为表锁
+        7.必有主键
+          如果创建的表没有主键,那么系统会自动隐藏生成一个 6 byte 的 int 型的索引作为主键索引
+        8.存储方式为 xxx.ibd 存储数据内容
+    MyISAM
+      B+Tree 索引的另一种重要表现形式
+      特点
+        1.非聚簇索引
+          使用 B+tree 作为索引结构,数据文件和主键索引分离,索引文件保存的是数据文件指针
+        2.有一个变量专门来保存整个表的行数,查询 count 很快,但不能加任何 where 条件
+        3.支持全文索引
+        4.可以被压缩后进行查询操作,节省空间容量
+        5.支持表级锁,不支持行级锁
+        6.主键不必须
+        7.存储方式为 xxx.MYI 存储索引文件, xxx.MYD 存储数据内容
+        8.不包含外键
+          当包含外键的 InnoDB 表转换为 MyISAM 会失败
+          通常通过  join-on 关联方式代替外键作用
+    CSV
+      数据以 CSV文件 存储
+      特点
+        1.不能定义索引,列必须定义 not null ,不能设置自增列
+          不适用于大表或者数据查询,排序等处理操作
+        2. CSV 数据要用 , 隔开,可直接编辑 CSV文件 进行数据的编排
+          数据安全性低
+        3.可以对硬盘中保存的表文件数据进行直接编辑 xxx.CSV 文件,需要通过 flush table [table_name] 命令使其生效
+      应用场景
+        1.数据的快速导入导出
+        2.表格直接转换成 CSV
+    Archive
+      数据以 压缩协议 存储
+      特点
+        1.只支持 insert 和 select 两种操作
+        2.只允许自增ID列建立索引
+        3.支持行级锁
+        4.不支持事务
+        5.数据占用磁盘少
+          博客文章中简单测试结果指出可节省95%的容量
+      应用场景
+        1.日志系统
+        2.大量的设备数据采集
+    Memory
+      早期称为 Heap 存储引擎,与优化器查询有关,对临时表很有用
+      基于 Hash 索引,底层是 Hash 表,对于精确查询非常高效
+      即在 = in 条件下高效,无法通过索引做区间查询,只能全盘扫描
+      特点
+        1.数据存储在内存中, IO 效率高
+        2.服务重启丢失,内存数据表默认只有16M
+          无持久性
+        3.支持 Hash 索引(默认), BTree 索引
+        4.不支持大数据存储类型,例如 blog text
+        5.表级锁
+      应用场景
+        1.等值查找热度较高数据
+        2.查询结果在内存中进行计算,大多数是采用此存储引擎作为临时表存储需要计算的数据
+      替代
+        Redis,Memcache
+      总结
+        更多使用在 MySQL 优化器查询阶段
+  MySQL 默认引擎是 InnoDB
+  可使用 show variables like 'datadir' 查看数据的存储位置
+
+行记录格式
+  InnoDB 存储引擎与 Oracle SQLServer 一样,记录是以行的形式存储
+  主要的行记录格式如下
+    1.Redundant
+      是为兼容之前版本而保留的
+    2.Compact
+      5.1版本的默认格式
+    3.Compressed,Dynamic
+      数据页中只存20个字节的指针
+
+表如果存在则删除表
+  drop table if exists [table_name];
+
+TPS
+  Transaction Per Second ,每秒事务处理量
+
+QPS
+  Queries per second ,每秒查询率
+
+主从数据库(master-slave)
+  把数据库架构分为主数据库和从数据库
+  从数据库是主数据库的备份,以提高数据的安全性
+  当主数据库崩溃时,从数据库可切换为主数据库,保证服务高可用
+  不至于数据库崩溃而导致整个项目无法运行,可有效防止财产损失
+  一般情况下,主数据库做更改操作,从数据库做查询操作,即读写分离
+  原理
+    MySQL 的主从复制依赖于 binlog ,即记录 MySQL 上所有变化并以二进制形式保存再磁盘上的日志文件
+    主数据库内部有一个线程,专门服务于与从数据库之间维持着的一个长连接
+    主数据库执行的 SQL(,update,insert,delete) 被写到 binlog 并将其以异步方式传输到从数据库
+    从数据库将其写入 relaylog 日志文件并读取回放执行,最终实现主从一致性
+
+Q:如何保证主从一致
+A:当主数据库与从数据库的索引不同时,两者查询的数据一般是不一样的
+  binlog 的3种格式:
+    1.statement 格式
+    2.row 格式
+    3.mixed 格式
+  默认 statement 格式,记录 SQL 原文
+  row 格式包含两个 event
+    1.Table_map
+      操作的表
+    2.Delete_rows
+      删除的行为,记录删除的具体行数
+  即记录要删除的主键 id 信息,就不会出现主从不一致的问题
+  但当删除的数据量很大时, row 格式就会很占空间,消耗IO
+  mixed 格式即为 statement 和 row 的混合使用,当 MySQL 判断数据不一致时,就用 row 格式,否则使用 statement 格式
+
+
+Q:主从延迟
+A:当主数据库删除了某条数据,之后去查询时发现依旧能(在从数据库种)查询到
+  本质是 主数据库写 binlog 与 从数据库回放 完成时间产生差值
+  从数据库的 slave_SQL_Running 是单线程的(低版本的Mysql),当一个 DDL 卡住了那么之后的 DDL 将处于等待中,导致了延时
+  解决方法:
+    1.提高机器新能
+    2.从库过多,3至5个适宜
+    3.事务过大,分批进行
+    4.优化网络
+    5.MySQL 版本过低,高版本支持多线程复制
+  缩短主从延迟时间,尽量不查询从数据库
+
+主从切换
+  1.一主一从
+    主数据库发生故障前:主数据库负责读写,从数据库负责读
+    主数据库发生故障后:主数据库负责读,从数据库负责读写
+    分担主数据库压力,提高并发度,操作简单,还可充当数据备份角色
+    一般小公司会这么用,但主从分离意义不大,本身流量不高
+  2.一主多从
+    分担主数据库的压力,提升了读的并发度
+    但只有一台主数据库写,所以写的并发度不高
+    基本上大公司使用该模式,因为查询流量高
+
+主主数据库
+  两个数据库互为主从关系,都可以对数据库进行读写操作
+  但当有自增主键很可能会产生主键冲突,所以需要改进
+
+Q:每次执行 update 自动更新相关时间类型字段
+A:ALTER TABLE [tab_name]  MODIFY COLUMN [update_time] TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP;
 
 ---样例---
 insert into test(Name,age) values ("Tom",12);

@@ -10,9 +10,19 @@ A:启动 redis
       redis-cli.exe -h 127.0.0.1 -p 6379
     这样以后直接执行 open.bat 即可进入 redis
 
+终止
+  Linux 下进入 redis 部署位置的 src 下
+  ./redis-cli -p 6379 shutdown #关闭redis服务，-p参数指定端口号
+
 ***命令集***
 keys *
   查看所有键值对
 
 flushall
   清空所有键值对
+
+ttl [key]
+  查看 key 的寿命周期, key 不存在返回2,已持久化返回-1,否则返回剩余生命周期时间(单位秒)
+
+del [key]
+  删除指定 key
